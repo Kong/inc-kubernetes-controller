@@ -1,0 +1,951 @@
+{
+  "required": [
+    "id",
+    "name"
+  ],
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "round-robin",
+        "consistent-hashing",
+        "least-connections"
+      ],
+      "type": "string",
+      "default": "round-robin"
+    },
+    "client_certificate": {
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string",
+          "description": "must be a valid UUID"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "created_at": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "hash_fallback": {
+      "enum": [
+        "none",
+        "consumer",
+        "ip",
+        "header",
+        "cookie",
+        "path",
+        "query_arg",
+        "uri_capture"
+      ],
+      "type": "string",
+      "default": "none"
+    },
+    "hash_fallback_header": {
+      "pattern": "^[A-Za-z0-9!#$%\u0026'*+-.^_|~]{1,64}$",
+      "type": "string"
+    },
+    "hash_fallback_query_arg": {
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9-_]+$",
+      "type": "string"
+    },
+    "hash_fallback_uri_capture": {
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9-_]+$",
+      "type": "string"
+    },
+    "hash_on": {
+      "enum": [
+        "none",
+        "consumer",
+        "ip",
+        "header",
+        "cookie",
+        "path",
+        "query_arg",
+        "uri_capture"
+      ],
+      "type": "string",
+      "default": "none"
+    },
+    "hash_on_cookie": {
+      "pattern": "^[a-zA-Z0-9-_]+$",
+      "type": "string"
+    },
+    "hash_on_cookie_path": {
+      "type": "string",
+      "allOf": [
+        {
+          "pattern": "^/.*",
+          "description": "must begin with `/`"
+        },
+        {
+          "maxLength": 1024,
+          "description": "length must not exceed 1024"
+        },
+        {
+          "not": {
+            "pattern": "//",
+            "description": "must not contain `//`"
+          }
+        }
+      ],
+      "default": "/"
+    },
+    "hash_on_header": {
+      "pattern": "^[A-Za-z0-9!#$%\u0026'*+-.^_|~]{1,64}$",
+      "type": "string"
+    },
+    "hash_on_query_arg": {
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9-_]+$",
+      "type": "string"
+    },
+    "hash_on_uri_capture": {
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9-_]+$",
+      "type": "string"
+    },
+    "healthchecks": {
+      "properties": {
+        "active": {
+          "properties": {
+            "concurrency": {
+              "maximum": 2147483648,
+              "minimum": 1,
+              "type": "integer",
+              "default": 10
+            },
+            "healthy": {
+              "properties": {
+                "http_statuses": {
+                  "items": {
+                    "maximum": 999,
+                    "minimum": 100,
+                    "type": "integer"
+                  },
+                  "maxItems": 32,
+                  "type": "array",
+                  "default": [
+                    200,
+                    302
+                  ]
+                },
+                "interval": {
+                  "maximum": 65535,
+                  "minimum": 0,
+                  "type": "integer",
+                  "default": 0
+                },
+                "successes": {
+                  "maximum": 255,
+                  "minimum": 0,
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "type": "object",
+              "default": {
+                "http_statuses": [
+                  200,
+                  302
+                ],
+                "interval": 0,
+                "successes": 0
+              }
+            },
+            "http_path": {
+              "type": "string",
+              "allOf": [
+                {
+                  "pattern": "^/.*",
+                  "description": "must begin with `/`"
+                },
+                {
+                  "maxLength": 1024,
+                  "description": "length must not exceed 1024"
+                },
+                {
+                  "not": {
+                    "pattern": "//",
+                    "description": "must not contain `//`"
+                  }
+                }
+              ],
+              "default": "/"
+            },
+            "https_sni": {
+              "maxLength": 256,
+              "pattern": "^[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?(.[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?)*$",
+              "type": "string",
+              "description": "must be a valid hostname"
+            },
+            "https_verify_certificate": {
+              "type": "boolean",
+              "default": true
+            },
+            "timeout": {
+              "maximum": 65535,
+              "minimum": 0,
+              "type": "integer",
+              "default": 1
+            },
+            "type": {
+              "enum": [
+                "tcp",
+                "http",
+                "https",
+                "grpc",
+                "grpcs"
+              ],
+              "type": "string",
+              "default": "http"
+            },
+            "unhealthy": {
+              "properties": {
+                "http_failures": {
+                  "maximum": 255,
+                  "minimum": 0,
+                  "type": "integer",
+                  "default": 0
+                },
+                "http_statuses": {
+                  "items": {
+                    "maximum": 999,
+                    "minimum": 100,
+                    "type": "integer"
+                  },
+                  "maxItems": 32,
+                  "type": "array",
+                  "default": [
+                    429,
+                    404,
+                    500,
+                    501,
+                    502,
+                    503,
+                    504,
+                    505
+                  ]
+                },
+                "interval": {
+                  "maximum": 65535,
+                  "minimum": 0,
+                  "type": "integer",
+                  "default": 0
+                },
+                "tcp_failures": {
+                  "maximum": 255,
+                  "minimum": 0,
+                  "type": "integer",
+                  "default": 0
+                },
+                "timeouts": {
+                  "maximum": 255,
+                  "minimum": 0,
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "type": "object",
+              "default": {
+                "http_failures": 0,
+                "http_statuses": [
+                  429,
+                  404,
+                  500,
+                  501,
+                  502,
+                  503,
+                  504,
+                  505
+                ],
+                "interval": 0,
+                "tcp_failures": 0,
+                "timeouts": 0
+              }
+            }
+          },
+          "type": "object",
+          "default": {
+            "concurrency": 10,
+            "healthy": {
+              "http_statuses": [
+                200,
+                302
+              ],
+              "interval": 0,
+              "successes": 0
+            },
+            "http_path": "/",
+            "https_verify_certificate": true,
+            "timeout": 1,
+            "type": "http",
+            "unhealthy": {
+              "http_failures": 0,
+              "http_statuses": [
+                429,
+                404,
+                500,
+                501,
+                502,
+                503,
+                504,
+                505
+              ],
+              "interval": 0,
+              "tcp_failures": 0,
+              "timeouts": 0
+            }
+          }
+        },
+        "passive": {
+          "properties": {
+            "healthy": {
+              "properties": {
+                "http_statuses": {
+                  "items": {
+                    "maximum": 999,
+                    "minimum": 100,
+                    "type": "integer"
+                  },
+                  "maxItems": 32,
+                  "type": "array",
+                  "default": [
+                    200,
+                    201,
+                    202,
+                    203,
+                    204,
+                    205,
+                    206,
+                    207,
+                    208,
+                    226,
+                    300,
+                    301,
+                    302,
+                    303,
+                    304,
+                    305,
+                    306,
+                    307,
+                    308
+                  ]
+                },
+                "successes": {
+                  "maximum": 255,
+                  "minimum": 0,
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "type": "object",
+              "default": {
+                "http_statuses": [
+                  200,
+                  201,
+                  202,
+                  203,
+                  204,
+                  205,
+                  206,
+                  207,
+                  208,
+                  226,
+                  300,
+                  301,
+                  302,
+                  303,
+                  304,
+                  305,
+                  306,
+                  307,
+                  308
+                ],
+                "successes": 0
+              }
+            },
+            "timeout": {
+              "maximum": 65535,
+              "minimum": 0,
+              "type": "integer",
+              "default": 1
+            },
+            "type": {
+              "enum": [
+                "tcp",
+                "http",
+                "https",
+                "grpc",
+                "grpcs"
+              ],
+              "type": "string",
+              "default": "http"
+            },
+            "unhealthy": {
+              "properties": {
+                "http_failures": {
+                  "maximum": 255,
+                  "minimum": 0,
+                  "type": "integer",
+                  "default": 0
+                },
+                "http_statuses": {
+                  "items": {
+                    "maximum": 999,
+                    "minimum": 100,
+                    "type": "integer"
+                  },
+                  "maxItems": 32,
+                  "type": "array",
+                  "default": [
+                    429,
+                    500,
+                    503
+                  ]
+                },
+                "tcp_failures": {
+                  "maximum": 255,
+                  "minimum": 0,
+                  "type": "integer",
+                  "default": 0
+                },
+                "timeouts": {
+                  "maximum": 255,
+                  "minimum": 0,
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "type": "object",
+              "default": {
+                "http_failures": 0,
+                "http_statuses": [
+                  429,
+                  500,
+                  503
+                ],
+                "tcp_failures": 0,
+                "timeouts": 0
+              }
+            }
+          },
+          "type": "object",
+          "default": {
+            "healthy": {
+              "http_statuses": [
+                200,
+                201,
+                202,
+                203,
+                204,
+                205,
+                206,
+                207,
+                208,
+                226,
+                300,
+                301,
+                302,
+                303,
+                304,
+                305,
+                306,
+                307,
+                308
+              ],
+              "successes": 0
+            },
+            "type": "http",
+            "unhealthy": {
+              "http_failures": 0,
+              "http_statuses": [
+                429,
+                500,
+                503
+              ],
+              "tcp_failures": 0,
+              "timeouts": 0
+            }
+          }
+        },
+        "threshold": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number",
+          "default": 0
+        }
+      },
+      "type": "object",
+      "default": {
+        "active": {
+          "concurrency": 10,
+          "healthy": {
+            "http_statuses": [
+              200,
+              302
+            ],
+            "interval": 0,
+            "successes": 0
+          },
+          "http_path": "/",
+          "https_verify_certificate": true,
+          "timeout": 1,
+          "type": "http",
+          "unhealthy": {
+            "http_failures": 0,
+            "http_statuses": [
+              429,
+              404,
+              500,
+              501,
+              502,
+              503,
+              504,
+              505
+            ],
+            "interval": 0,
+            "tcp_failures": 0,
+            "timeouts": 0
+          }
+        },
+        "passive": {
+          "healthy": {
+            "http_statuses": [
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              226,
+              300,
+              301,
+              302,
+              303,
+              304,
+              305,
+              306,
+              307,
+              308
+            ],
+            "successes": 0
+          },
+          "type": "http",
+          "unhealthy": {
+            "http_failures": 0,
+            "http_statuses": [
+              429,
+              500,
+              503
+            ],
+            "tcp_failures": 0,
+            "timeouts": 0
+          }
+        },
+        "threshold": 0
+      }
+    },
+    "host_header": {
+      "maxLength": 256,
+      "pattern": "^[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?(.[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?)*$",
+      "type": "string",
+      "description": "must be a valid hostname"
+    },
+    "id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string",
+      "description": "must be a valid UUID"
+    },
+    "name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[0-9a-zA-Z.\\-_~]*$",
+      "type": "string"
+    },
+    "slots": {
+      "maximum": 65536,
+      "minimum": 10,
+      "type": "integer",
+      "default": 10000
+    },
+    "tags": {
+      "items": {
+        "maxLength": 128,
+        "minLength": 1,
+        "pattern": "^(?:[0-9a-zA-Z.\\-_~:]+(?: *[0-9a-zA-Z.\\-_~:])*)?$",
+        "type": "string"
+      },
+      "maxItems": 8,
+      "uniqueItems": true,
+      "type": "array"
+    },
+    "updated_at": {
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false,
+  "type": "object",
+  "allOf": [
+    {
+      "description": "when 'hash_on' is set to 'header','hash_on_header' must be set",
+      "if": {
+        "required": [
+          "hash_on"
+        ],
+        "properties": {
+          "hash_on": {
+            "const": "header"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_on_header"
+        ]
+      }
+    },
+    {
+      "description": "when 'hash_fallback' is set to 'header','hash_fallback_header' must be set",
+      "if": {
+        "required": [
+          "hash_fallback"
+        ],
+        "properties": {
+          "hash_fallback": {
+            "const": "header"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_fallback_header"
+        ]
+      }
+    },
+    {
+      "description": "when 'hash_on' is set to 'cookie', 'hash_on_cookie' must be set",
+      "if": {
+        "required": [
+          "hash_on"
+        ],
+        "properties": {
+          "hash_on": {
+            "const": "cookie"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_on_cookie"
+        ]
+      }
+    },
+    {
+      "description": "when 'hash_fallback' is set to 'cookie', 'hash_on_cookie' must be set",
+      "if": {
+        "required": [
+          "hash_fallback"
+        ],
+        "properties": {
+          "hash_fallback": {
+            "const": "cookie"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_on_cookie"
+        ]
+      }
+    },
+    {
+      "description": "when 'hash_on' is set to 'none', 'hash_fallback' must be set to 'none'",
+      "if": {
+        "required": [
+          "hash_on"
+        ],
+        "properties": {
+          "hash_on": {
+            "const": "none"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_fallback"
+        ],
+        "properties": {
+          "hash_fallback": {
+            "const": "none"
+          }
+        }
+      }
+    },
+    {
+      "description": "when 'hash_on' is set to 'cookie', 'hash_fallback' must be set to 'none'",
+      "if": {
+        "required": [
+          "hash_on"
+        ],
+        "properties": {
+          "hash_on": {
+            "const": "cookie"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_fallback"
+        ],
+        "properties": {
+          "hash_fallback": {
+            "const": "none"
+          }
+        }
+      }
+    },
+    {
+      "description": "when 'hash_on' is set to 'consumer', 'hash_fallback' must be set to one of 'none', 'ip', 'header', 'cookie', 'path', 'query_arg', 'uri_capture'",
+      "if": {
+        "required": [
+          "hash_on"
+        ],
+        "properties": {
+          "hash_on": {
+            "const": "consumer"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_fallback"
+        ],
+        "properties": {
+          "hash_fallback": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "none"
+              },
+              {
+                "type": "string",
+                "const": "ip"
+              },
+              {
+                "type": "string",
+                "const": "header"
+              },
+              {
+                "type": "string",
+                "const": "cookie"
+              },
+              {
+                "type": "string",
+                "const": "path"
+              },
+              {
+                "type": "string",
+                "const": "query_arg"
+              },
+              {
+                "type": "string",
+                "const": "uri_capture"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "when 'hash_on' is set to 'ip', 'hash_fallback' must be set to one of 'none', 'consumer', 'header', 'cookie', 'path', 'query_arg', 'uri_capture'",
+      "if": {
+        "required": [
+          "hash_on"
+        ],
+        "properties": {
+          "hash_on": {
+            "const": "ip"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_fallback"
+        ],
+        "properties": {
+          "hash_fallback": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "none"
+              },
+              {
+                "type": "string",
+                "const": "consumer"
+              },
+              {
+                "type": "string",
+                "const": "header"
+              },
+              {
+                "type": "string",
+                "const": "cookie"
+              },
+              {
+                "type": "string",
+                "const": "path"
+              },
+              {
+                "type": "string",
+                "const": "query_arg"
+              },
+              {
+                "type": "string",
+                "const": "uri_capture"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "when 'hash_on' is set to 'path', 'hash_fallback' must be set to one of 'none', 'consumer', 'ip', 'header', 'cookie', 'query_arg', 'uri_capture'",
+      "if": {
+        "required": [
+          "hash_on"
+        ],
+        "properties": {
+          "hash_on": {
+            "const": "path"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_fallback"
+        ],
+        "properties": {
+          "hash_fallback": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "none"
+              },
+              {
+                "type": "string",
+                "const": "consumer"
+              },
+              {
+                "type": "string",
+                "const": "header"
+              },
+              {
+                "type": "string",
+                "const": "cookie"
+              },
+              {
+                "type": "string",
+                "const": "ip"
+              },
+              {
+                "type": "string",
+                "const": "query_arg"
+              },
+              {
+                "type": "string",
+                "const": "uri_capture"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "when 'hash_on' is set to 'query_arg', 'hash_on_query_arg' must be set",
+      "if": {
+        "required": [
+          "hash_on"
+        ],
+        "properties": {
+          "hash_on": {
+            "const": "query_arg"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_on_query_arg"
+        ]
+      }
+    },
+    {
+      "description": "when 'hash_fallback' is set to 'query_arg', 'hash_fallback_query_arg' must be set",
+      "if": {
+        "required": [
+          "hash_fallback"
+        ],
+        "properties": {
+          "hash_fallback": {
+            "const": "query_arg"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_fallback_query_arg"
+        ]
+      }
+    },
+    {
+      "description": "when 'hash_on' is set to 'uri_capture', 'hash_on_uri_capture' must be set",
+      "if": {
+        "required": [
+          "hash_on"
+        ],
+        "properties": {
+          "hash_on": {
+            "const": "uri_capture"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_on_uri_capture"
+        ]
+      }
+    },
+    {
+      "description": "when 'hash_fallback' is set to 'uri_capture', 'hash_fallback_uri_capture' must be set",
+      "if": {
+        "required": [
+          "hash_fallback"
+        ],
+        "properties": {
+          "hash_fallback": {
+            "const": "uri_capture"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hash_fallback_uri_capture"
+        ]
+      }
+    }
+  ],
+  "x-koko-config": {
+    "disableValidateEndpoint": false,
+    "resourceAPIPath": "upstreams"
+  }
+}

@@ -1,0 +1,1108 @@
+//go:build integration
+
+package e2e
+
+import (
+	"context"
+	"crypto/tls"
+	"fmt"
+	"net/http"
+	"strings"
+	"testing"
+
+	"github.com/cenkalti/backoff/v4"
+	"github.com/gavv/httpexpect/v2"
+	"github.com/google/uuid"
+	kongClient "github.com/kong/go-kong/kong"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/cmd"
+	v1 "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/model/v1"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/json"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/test/certs"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/test/kong"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/test/run"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/test/util"
+	"github.com/stretchr/testify/require"
+	"github.com/tidwall/gjson"
+	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
+)
+
+var caCert = `
+-----BEGIN CERTIFICATE-----
+MIIDkzCCAnugAwIBAgIUYGc07pbHSjOBPreXh7OcNT2+sD4wDQYJKoZIhvcNAQEL
+BQAwWTELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAkNBMRUwEwYDVQQKDAxZb2xvNDIs
+IEluYy4xJjAkBgNVBAMMHVlvbG80MiBzZWxmLXNpZ25lZCB0ZXN0aW5nIENBMB4X
+DTIyMDMyOTE5NDczM1oXDTMyMDMyNjE5NDczM1owWTELMAkGA1UEBhMCVVMxCzAJ
+BgNVBAgMAkNBMRUwEwYDVQQKDAxZb2xvNDIsIEluYy4xJjAkBgNVBAMMHVlvbG80
+MiBzZWxmLXNpZ25lZCB0ZXN0aW5nIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
+MIIBCgKCAQEAvnhTgdJALnuLKDA0ZUZRVMqcaaC+qvfJkiEFGYwX2ZJiFtzU65F/
+sB2L0ToFqY4tmMVlOmiSZFnRLDZecmQDbbNwc3wtNikmxIOzx4qR4kbRP8DDdyIf
+gaNmGCuaXTM5+FYy2iNBn6CeibIjqdErQlAbFLwQs5t3mLsjii2U4cyvfRtO+0RV
+HdJ6Np5LsVziN0c5gVIesIrrbxLcOjtXDzwd/w/j5NXqL/OwD5EBH2vqd3QKKX4t
+s83BLl2EsbUse47VAImavrwDhmV6S/p/NuJHqjJ6dIbXLYxNS7g26ijcrXxvNhiu
+YoZTykSgdI3BXMNAm1ahP/BtJPZpU7CVdQIDAQABo1MwUTAdBgNVHQ4EFgQUe1WZ
+fMfZQ9QIJIttwTmcrnl40ccwHwYDVR0jBBgwFoAUe1WZfMfZQ9QIJIttwTmcrnl4
+0ccwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAs4Z8VYbvEs93
+haTHdbbaKk0V6xAL/Q8I8GitK9E8cgf8C5rwwn+wU/Gf39dtMUlnW8uxyzRPx53u
+CAAcJAWkabT+xwrlrqjO68H3MgIAwgWA5yZC+qW7ECA8xYEK6DzEHIaOpagJdKcL
+IaZr/qTJlEQClvwDs4x/BpHRB5XbmJs86GqEB7XWAm+T2L8DluHAXvek+welF4Xo
+fQtLlNS/vqTDqPxkSbJhFv1L7/4gdwfAz51wH/iL7AG/ubFEtoGZPK9YCJ40yTWz
+8XrUoqUC+2WIZdtmo6dFFJcLfQg4ARJZjaK6lmxJun3iRMZjKJdQKm/NEKz4y9kA
+u8S6yNlu2Q==
+-----END CERTIFICATE-----
+`
+
+func goodService() *v1.Service {
+	return &v1.Service{
+		Name: "foo",
+		Host: "example.com",
+		Path: "/",
+	}
+}
+
+func disabledService() *v1.Service {
+	return &v1.Service{
+		Name:    "bar",
+		Host:    "example-bar.com",
+		Path:    "/",
+		Enabled: wrapperspb.Bool(false),
+	}
+}
+
+func TestSharedMTLS(t *testing.T) {
+	// ensure that Kong Gateway can connect using Shared MTLS mode
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	service := &v1.Service{
+		Id:   uuid.NewString(),
+		Name: "foo",
+		Host: "httpbin.org",
+		Path: "/",
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/services").WithJSON(service).Expect()
+	res.Status(http.StatusCreated)
+	route := &v1.Route{
+		Name:  "bar",
+		Paths: []string{"/"},
+		Service: &v1.Service{
+			Id: service.Id,
+		},
+	}
+	res = c.POST("/v1/routes").WithJSON(route).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+
+	expectedConfig := &v1.TestingConfig{
+		Services: []*v1.Service{service},
+		Routes:   []*v1.Route{route},
+	}
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(expectedConfig)
+		return err
+	})
+}
+
+func TestPKIMTLS(t *testing.T) {
+	// ensure that Kong Gateway can connect using PKI MTLS mode
+	cleanup := run.Koko(t, run.WithDPAuthMode(cmd.DPAuthPKIMTLS))
+	defer cleanup()
+
+	service := &v1.Service{
+		Id:   uuid.NewString(),
+		Name: "foo",
+		Host: "httpbin.org",
+		Path: "/",
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/services").WithJSON(service).Expect()
+	res.Status(http.StatusCreated)
+	route := &v1.Route{
+		Name:  "bar",
+		Paths: []string{"/"},
+		Service: &v1.Service{
+			Id: service.Id,
+		},
+	}
+	res = c.POST("/v1/routes").WithJSON(route).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConf())
+	defer dpCleanup()
+
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+
+	expectedConfig := &v1.TestingConfig{
+		Services: []*v1.Service{service},
+		Routes:   []*v1.Route{route},
+	}
+	util.WaitFunc(t, func() error {
+		return util.EnsureConfig(expectedConfig)
+	})
+}
+
+func TestHealthEndpointOnCPPort(t *testing.T) {
+	// ensure that health-check is enabled on the CP port
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	// test the endpoint
+	require.Nil(t, backoff.Retry(func() error {
+		client := insecureHTTPClient()
+		res, err := client.Get("https://localhost:3100/health")
+		if err != nil {
+			return err
+		}
+		defer res.Body.Close()
+		if res.StatusCode != http.StatusOK {
+			return fmt.Errorf("unexpected status code: %v", res.StatusCode)
+		}
+		return nil
+	}, util.TestBackoff))
+}
+
+func insecureHTTPClient() *http.Client {
+	transport := http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	return &http.Client{Transport: &transport}
+}
+
+func TestNodesEndpoint(t *testing.T) {
+	// ensure that gateway nodes are tracked in database
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	service := &v1.Service{
+		Id:   uuid.NewString(),
+		Name: "foo",
+		Host: "httpbin.org",
+		Path: "/",
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/services").WithJSON(service).Expect()
+	res.Status(http.StatusCreated)
+	route := &v1.Route{
+		Name:  "bar",
+		Paths: []string{"/"},
+		Service: &v1.Service{
+			Id: service.Id,
+		},
+	}
+	res = c.POST("/v1/routes").WithJSON(route).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.Nil(t, util.WaitForKong(t))
+
+	// ensure kong node is up
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+
+	expectedConfig := &v1.TestingConfig{
+		Services: []*v1.Service{service},
+		Routes:   []*v1.Route{route},
+	}
+	util.WaitFunc(t, func() error {
+		return util.EnsureConfig(expectedConfig)
+	})
+
+	util.WaitFunc(t, func() error {
+		// once node is up, check the status endpoint
+		res = c.GET("/v1/nodes").Expect()
+		res.Status(http.StatusOK)
+		body := gjson.Parse(res.Body().Raw())
+		hash := body.Get("items.0.config_hash").String()
+		if len(hash) != 32 {
+			return fmt.Errorf(
+				"expected config hash to be 32 character long")
+		}
+		if hash == strings.Repeat("0", 32) {
+			return fmt.Errorf("expected hash to not be a string of 0s")
+		}
+		return nil
+	})
+}
+
+func TestPluginSync(t *testing.T) {
+	// ensure that plugins can be synced to Kong gateway
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	service := &v1.Service{
+		Id:   uuid.NewString(),
+		Name: "foo",
+		Host: "example.com",
+		Path: "/",
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/services").WithJSON(service).Expect()
+	res.Status(http.StatusCreated)
+
+	route := &v1.Route{
+		Id:    uuid.NewString(),
+		Name:  "bar",
+		Paths: []string{"/bar"},
+		Service: &v1.Service{
+			Id: service.Id,
+		},
+	}
+	res = c.POST("/v1/routes").WithJSON(route).Expect()
+	res.Status(http.StatusCreated)
+
+	consumer := &v1.Consumer{
+		Id:       uuid.NewString(),
+		Username: "testConsumer",
+	}
+	// create the consumer in CP
+	c = httpexpect.Default(t, "http://localhost:3000")
+	res = c.POST("/v1/consumers").WithJSON(consumer).Expect()
+	res.Status(http.StatusCreated)
+
+	var expectedPlugins []*v1.Plugin
+	plugin := &v1.Plugin{
+		Name:      "key-auth",
+		Enabled:   wrapperspb.Bool(true),
+		Service:   &v1.Service{Id: service.Id},
+		Protocols: []string{"http", "https"},
+	}
+	pluginBytes, err := json.ProtoJSONMarshal(plugin)
+	require.Nil(t, err)
+	res = c.POST("/v1/plugins").WithBytes(pluginBytes).Expect()
+	res.Status(http.StatusCreated)
+	expectedPlugins = append(expectedPlugins, plugin)
+
+	plugin = &v1.Plugin{
+		Name:      "basic-auth",
+		Enabled:   wrapperspb.Bool(true),
+		Route:     &v1.Route{Id: route.Id},
+		Protocols: []string{"http", "https"},
+	}
+	pluginBytes, err = json.ProtoJSONMarshal(plugin)
+	require.Nil(t, err)
+	res = c.POST("/v1/plugins").WithBytes(pluginBytes).Expect()
+	res.Status(http.StatusCreated)
+	expectedPlugins = append(expectedPlugins, plugin)
+
+	var config structpb.Struct
+	configString := `{"header_name": "Kong-Request-ID", "generator": "uuid#counter", "echo_downstream": true }`
+	require.Nil(t, json.ProtoJSONUnmarshal([]byte(configString), &config))
+	plugin = &v1.Plugin{
+		Name:      "correlation-id",
+		Protocols: []string{"http", "https"},
+		Consumer: &v1.Consumer{
+			Id: consumer.Id,
+		},
+		Config: &config,
+	}
+
+	pluginBytes, err = json.ProtoJSONMarshal(plugin)
+	require.Nil(t, err)
+	res = c.POST("/v1/plugins").WithBytes(pluginBytes).Expect()
+	res.Status(http.StatusCreated)
+	expectedPlugins = append(expectedPlugins, plugin)
+
+	plugin = &v1.Plugin{
+		Name:      "request-transformer",
+		Enabled:   wrapperspb.Bool(true),
+		Protocols: []string{"http", "https"},
+	}
+	pluginBytes, err = json.ProtoJSONMarshal(plugin)
+	require.Nil(t, err)
+	res = c.POST("/v1/plugins").WithBytes(pluginBytes).Expect()
+	res.Status(http.StatusCreated)
+	expectedPlugins = append(expectedPlugins, plugin)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+
+	expectedConfig := &v1.TestingConfig{
+		Services:  []*v1.Service{service},
+		Routes:    []*v1.Route{route},
+		Consumers: []*v1.Consumer{consumer},
+		Plugins:   expectedPlugins,
+	}
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(expectedConfig)
+		t.Log("configuration mismatch", err)
+		return err
+	})
+}
+
+func TestUpstreamSync(t *testing.T) {
+	// ensure that upstreams can be synced to Kong gateway
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	upstream := &v1.Upstream{
+		Id:   uuid.NewString(),
+		Name: "foo",
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/upstreams").WithJSON(upstream).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+
+	expectedConfig := &v1.TestingConfig{
+		Upstreams: []*v1.Upstream{upstream},
+	}
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(expectedConfig)
+		t.Log("configuration mismatch", err)
+		return err
+	})
+}
+
+func TestUpstreamWithClientCertificateSync(t *testing.T) {
+	// Ensure that upstreams with a client certificate can be synced to Kong gateway.
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	c := httpexpect.Default(t, "http://localhost:3000")
+
+	certificate := &v1.Certificate{
+		Id:   uuid.NewString(),
+		Cert: string(certs.DefaultSharedCert),
+		Key:  string(certs.DefaultSharedKey),
+	}
+	c.POST("/v1/certificates").WithJSON(certificate).Expect().Status(http.StatusCreated)
+
+	upstream := &v1.Upstream{
+		Id:                uuid.NewString(),
+		Name:              "foo",
+		ClientCertificate: &v1.Certificate{Id: certificate.Id},
+	}
+	c.POST("/v1/upstreams").WithJSON(upstream).Expect().Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.NoError(t, util.WaitForKongPort(t, 8001))
+
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(&v1.TestingConfig{Upstreams: []*v1.Upstream{upstream}})
+		t.Log("configuration mismatch", err)
+		return err
+	})
+}
+
+func TestServiceWithClientCertificateSync(t *testing.T) {
+	// Ensure that service with a client certificate can be synced to Kong gateway.
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	c := httpexpect.Default(t, "http://localhost:3000")
+
+	certificate := &v1.Certificate{
+		Id:   uuid.NewString(),
+		Cert: string(certs.DefaultSharedCert),
+		Key:  string(certs.DefaultSharedKey),
+	}
+	c.POST("/v1/certificates").WithJSON(certificate).Expect().Status(http.StatusCreated)
+
+	svc := &v1.Service{
+		Id:                uuid.NewString(),
+		Name:              "foo",
+		Host:              "example.org",
+		Protocol:          "https",
+		ClientCertificate: &v1.Certificate{Id: certificate.Id},
+	}
+	c.POST("/v1/services").WithJSON(svc).Expect().Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.NoError(t, util.WaitForKongPort(t, 8001))
+
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(&v1.TestingConfig{
+			Services:     []*v1.Service{svc},
+			Certificates: []*v1.Certificate{certificate},
+		})
+		t.Log("configuration mismatch", err)
+		return err
+	})
+}
+
+func TestConsumerSync(t *testing.T) {
+	// ensure that consumers can be synced to Kong gateway
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	consumer := &v1.Consumer{
+		Id:       uuid.NewString(),
+		Username: "testConsumer",
+	}
+	// create the consumer in CP
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/consumers").WithJSON(consumer).Expect()
+	res.Status(http.StatusCreated)
+
+	// launch the DP
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	// wait for DP to come-up
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+
+	expectedConfig := &v1.TestingConfig{
+		Consumers: []*v1.Consumer{consumer},
+	}
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(expectedConfig)
+		t.Log("configuration mismatch for consumer", err)
+		return err
+	})
+}
+
+func TestCertificateSync(t *testing.T) {
+	// ensure that certificates can be synced to Kong gateway
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	certificate := &v1.Certificate{
+		Id:   uuid.NewString(),
+		Cert: string(certs.DefaultSharedCert),
+		Key:  string(certs.DefaultSharedKey),
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/certificates").WithJSON(certificate).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+
+	expectedConfig := &v1.TestingConfig{
+		Certificates: []*v1.Certificate{certificate},
+	}
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(expectedConfig)
+		t.Log("configuration mismatch for certificate", err)
+		return err
+	})
+}
+
+func TestCACertificateSync(t *testing.T) {
+	// ensure that certificates can be synced to Kong gateway
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	certificate := &v1.CACertificate{
+		Id:   uuid.NewString(),
+		Cert: caCert,
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/ca-certificates").WithJSON(certificate).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+
+	expectedConfig := &v1.TestingConfig{
+		CaCertificates: []*v1.CACertificate{certificate},
+	}
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(expectedConfig)
+		t.Log("configuration mismatch for CA certificate", err)
+		return err
+	})
+}
+
+func TestSNISync(t *testing.T) {
+	// ensure that SNIs can be synced to Kong gateway
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	certificate := &v1.Certificate{
+		Id:   uuid.NewString(),
+		Cert: string(certs.DefaultSharedCert),
+		Key:  string(certs.DefaultSharedKey),
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	c.POST("/v1/certificates").WithJSON(certificate).Expect().Status(http.StatusCreated)
+
+	sni := &v1.SNI{
+		Id:   uuid.NewString(),
+		Name: "test-one.example.com",
+		Certificate: &v1.Certificate{
+			Id: certificate.Id,
+		},
+	}
+	c.POST("/v1/snis").WithJSON(sni).Expect().Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+
+	expectedConfig := &v1.TestingConfig{
+		Certificates: []*v1.Certificate{certificate},
+		Snis:         []*v1.SNI{sni},
+	}
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(expectedConfig)
+		t.Log("configuration mismatch for SNI", err)
+		return err
+	})
+}
+
+func TestVaultSync(t *testing.T) {
+	// ensure that Vaults can be synced to Kong gateway
+	cleanup := run.Koko(t)
+
+	defer cleanup()
+
+	vault := &v1.Vault{
+		Id:     uuid.NewString(),
+		Name:   "env",
+		Prefix: "test-vault-1",
+		Config: &v1.Vault_Config{
+			Config: &v1.Vault_Config_Env{
+				Env: &v1.Vault_EnvConfig{
+					Prefix: "SECRET_",
+				},
+			},
+		},
+	}
+	expectedConfig := util.KongConfig{
+		Vaults: []*kongClient.Vault{
+			{
+				ID:     kongClient.String(vault.Id),
+				Name:   kongClient.String(vault.Name),
+				Prefix: kongClient.String(vault.Prefix),
+				Config: kongClient.Configuration{
+					"prefix": vault.Config.GetEnv().Prefix,
+				},
+			},
+		},
+	}
+	vaultBytes, err := json.ProtoJSONMarshal(vault)
+	require.NoError(t, err)
+	c := httpexpect.Default(t, "http://localhost:3000")
+	c.POST("/v1/vaults").WithBytes(vaultBytes).Expect().Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.NoError(t, util.WaitForKongPort(t, 8001))
+
+	// kongClient
+	kongClient.RunWhenKong(t, ">= 3.0.0")
+
+	util.WaitFunc(t, func() error {
+		err := util.EnsureKongConfig(expectedConfig)
+		t.Log("configuration mismatch for vault", err)
+		return err
+	})
+}
+
+func TestVaultRemoval(t *testing.T) {
+	// ensure that Vaults aren't present on old data planes, and that
+	// other configurations can still be synced.
+	cleanup := run.Koko(t)
+
+	defer cleanup()
+
+	service := &v1.Service{
+		Id:   uuid.NewString(),
+		Name: "foo",
+		Host: "httpbin.org",
+		Path: "/",
+	}
+	route := &v1.Route{
+		Id:    uuid.NewString(),
+		Name:  "bar",
+		Paths: []string{"/bar"},
+		Service: &v1.Service{
+			Id: service.Id,
+		},
+	}
+	vault := &v1.Vault{
+		Id:     uuid.NewString(),
+		Name:   "env",
+		Prefix: "test-vault-1",
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	c.POST("/v1/services").WithJSON(service).Expect().Status(http.StatusCreated)
+	c.POST("/v1/vaults").WithJSON(vault).Expect().Status(http.StatusCreated)
+	c.POST("/v1/routes").WithJSON(route).Expect().Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.NoError(t, util.WaitForKongPort(t, 8001))
+
+	// kongClient
+	kongClient.RunWhenKong(t, "< 3.0.0")
+
+	expectedConfig := &v1.TestingConfig{
+		Services: []*v1.Service{service},
+		Routes:   []*v1.Route{route},
+	}
+
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(expectedConfig)
+		t.Log("configuration mismatch for vault", err)
+		return err
+	})
+}
+
+func TestTargetSync(t *testing.T) {
+	// ensure that target can be synced to Kong gateway
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	uid := uuid.NewString()
+	upstream := &v1.Upstream{
+		Id:   uid,
+		Name: "foo",
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/upstreams").WithJSON(upstream).Expect()
+	res.Status(http.StatusCreated)
+
+	target := &v1.Target{
+		Target:   "10.0.42.42:8000",
+		Upstream: &v1.Upstream{Id: uid},
+	}
+	res = c.POST("/v1/targets").WithJSON(target).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+
+	expectedConfig := &v1.TestingConfig{
+		Upstreams: []*v1.Upstream{upstream},
+		Targets:   []*v1.Target{target},
+	}
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(expectedConfig)
+		t.Log("configuration mismatch", err)
+		return err
+	})
+}
+
+func TestServiceSync(t *testing.T) {
+	// ensure that services can be synced to Kong gateway
+	// regardless they are enabled or not
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	enabledService := goodService()
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/services").WithJSON(enabledService).Expect()
+	res.Status(http.StatusCreated)
+
+	disabledService := disabledService()
+	disabled, err := json.ProtoJSONMarshal(disabledService)
+	require.NoError(t, err)
+	res = c.POST("/v1/services").WithBytes(disabled).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.NoError(t, util.WaitForKongPort(t, 8001))
+
+	expectedConfig := &v1.TestingConfig{
+		Services: []*v1.Service{enabledService, {
+			Name: disabledService.Name,
+			Host: disabledService.Host,
+			Path: disabledService.Path,
+		}},
+	}
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(expectedConfig)
+		t.Log("configuration mismatch", err)
+		return err
+	})
+}
+
+func TestServiceWithEnabledFieldSync(t *testing.T) {
+	// ensure that services can be synced to Kong gateway
+	// and make sure the 'enabled' field is correctly set
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	c := httpexpect.Default(t, "http://localhost:3000")
+
+	// add enabled service
+	enabledService := goodService()
+	enabledService.Enabled = wrapperspb.Bool(true)
+	enabled, err := json.ProtoJSONMarshal(enabledService)
+	require.NoError(t, err)
+	res := c.POST("/v1/services").WithBytes(enabled).Expect()
+	res.Status(http.StatusCreated)
+
+	// add disabled service
+	disabledService := disabledService()
+	disabledService.Enabled = wrapperspb.Bool(false)
+	disabled, err := json.ProtoJSONMarshal(disabledService)
+	require.NoError(t, err)
+	res = c.POST("/v1/services").WithBytes(disabled).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.NoError(t, util.WaitForKongPort(t, 8001))
+	kongClient.RunWhenKong(t, ">= 2.7.0")
+
+	expectedConfig := &v1.TestingConfig{
+		Services: []*v1.Service{enabledService, disabledService},
+	}
+	util.WaitFunc(t, func() error {
+		err := util.EnsureConfig(expectedConfig)
+		t.Log("configuration mismatch", err)
+		return err
+	})
+}
+
+func TestRouteHeader(t *testing.T) {
+	// ensure that routes with headers can be synced to Kong gateway
+	// this is done because the data-structures for headers in Koko and Kong
+	// are different
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	service := &v1.Service{
+		Id:   uuid.NewString(),
+		Name: "foo",
+		Host: "httpbin.org",
+		Path: "/",
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/services").WithJSON(service).Expect()
+	res.Status(http.StatusCreated)
+	route := &v1.Route{
+		Name:  "bar",
+		Paths: []string{"/"},
+		Headers: map[string]*v1.HeaderValues{
+			"foo": {
+				Values: []string{"bar", "baz"},
+			},
+		},
+		Service: &v1.Service{
+			Id: service.Id,
+		},
+	}
+	res = c.POST("/v1/routes").WithJSON(route).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+	util.WaitFunc(t, func() error {
+		ctx := context.Background()
+		client, err := kongClient.NewClient(util.BasedKongAdminAPIAddr, nil)
+		if err != nil {
+			return fmt.Errorf("create go client for kong: %v", err)
+		}
+		routes, err := client.Routes.ListAll(ctx)
+		if err != nil {
+			return fmt.Errorf("fetch routes: %v", err)
+		}
+		if len(routes) != 1 {
+			return fmt.Errorf("expected %v routes but got %v routes", 1,
+				len(routes))
+		}
+		route := routes[0]
+		if len(route.Headers["foo"]) != 2 {
+			return fmt.Errorf("expected route.Headers."+
+				"foo to have 2 values but got %v", len(route.Headers["foo"]))
+		}
+		return nil
+	})
+}
+
+func TestRouteHeaderWithRegex(t *testing.T) {
+	// ensure that routes that use header regex can be successufully synced
+	// to Kong gateway and used correctly.  This feature was introduced in 2.8.0,
+	// so this test won't run on earlier versions
+	ctx := context.Background()
+
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	service := &v1.Service{
+		Id:   uuid.NewString(),
+		Name: "foo",
+		Host: "httpbin.org",
+		Path: "/",
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/services").WithJSON(service).Expect()
+	res.Status(http.StatusCreated)
+	route := &v1.Route{
+		Name:  "bar",
+		Paths: []string{"/foo"},
+		Headers: map[string]*v1.HeaderValues{
+			"foo": {
+				Values: []string{"~*^(([Tt])([Ee])([Ss])([Tt]))$"},
+			},
+		},
+		Service: &v1.Service{
+			Id: service.Id,
+		},
+		HttpsRedirectStatusCode: http.StatusMovedPermanently,
+	}
+	res = c.POST("/v1/routes").WithJSON(route).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+	require.Nil(t, util.WaitForKongPort(t, 8001))
+	kongClient.RunWhenKong(t, ">= 2.8.0")
+
+	client, err := kongClient.NewClient(util.BasedKongAdminAPIAddr, nil)
+	if err != nil {
+		t.Errorf("create go client for kong: %v", err)
+	}
+
+	util.WaitFunc(t, func() error {
+		routes, err := client.Routes.ListAll(ctx)
+		if err != nil {
+			return fmt.Errorf("fetch routes: %v", err)
+		}
+		if len(routes) != 1 {
+			return fmt.Errorf("expected %v routes but got %v routes", 1,
+				len(routes))
+		}
+		route := routes[0]
+		if len(route.Headers["foo"]) != 1 {
+			return fmt.Errorf("expected route.Headers."+
+				"foo to have 1 value but got %v", len(route.Headers["foo"]))
+		}
+
+		pc := httpexpect.Default(t, "http://localhost:8000")
+
+		pc.GET("/foo").
+			Expect().
+			Status(http.StatusNotFound)
+
+		pc.GET("/foo").
+			WithHeader("foo", "wrong-header").
+			Expect().
+			Status(http.StatusNotFound)
+
+		pc.GET("/foo").
+			WithHeader("foo", "TEST").
+			Expect().
+			Status(http.StatusOK)
+
+		return nil
+	})
+}
+
+// TestRouteWithWildcardHost ensures that we can create routes with wildcard hostnames.
+func TestRouteWithWildcardHost(t *testing.T) {
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	adminClient := httpexpect.WithConfig(httpexpect.Config{
+		BaseURL:  "http://localhost:3000",
+		Reporter: httpexpect.NewRequireReporter(t),
+		Printers: []httpexpect.Printer{
+			httpexpect.NewCompactPrinter(t),
+		},
+	})
+
+	proxyClient := httpexpect.Default(t, "http://localhost:8000")
+
+	service := &v1.Service{
+		Id:   uuid.NewString(),
+		Host: "127.0.0.1",
+		Name: "test-service",
+		Path: "/",
+		Port: 8001,
+	}
+	res := adminClient.POST("/v1/services").WithJSON(service).Expect()
+	res.Status(http.StatusCreated)
+
+	route := &v1.Route{
+		Hosts:   []string{"*.example.com"},
+		Name:    "test-route",
+		Paths:   []string{"/"},
+		Service: &v1.Service{Id: service.Id},
+	}
+	res = adminClient.POST("/v1/routes").WithJSON(route).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	require.NoError(t, util.WaitForKongPort(t, 8001))
+
+	util.WaitFunc(t, func() error {
+		return util.EnsureConfig(&v1.TestingConfig{
+			Services: []*v1.Service{service},
+			Routes:   []*v1.Route{route},
+		})
+	})
+
+	// Ensure the admin API was not proxied when the host header did not match.
+	proxyClient.GET("/").Expect().Status(http.StatusNotFound)
+
+	// Ensure the admin API was properly proxied when the host header matched.
+	proxyClient.
+		GET("/").
+		WithHost("test.example.com").
+		Expect().
+		Status(http.StatusOK).
+		JSON().Object().Value("version").String().NotEmpty()
+}
+
+func TestExpectedConfigHash(t *testing.T) {
+	// ensure that expected config hash is generated and stored by manager
+	// ensure that the generated configuration matches up with the one reported
+	// by the data-plane
+	cleanup := run.Koko(t)
+	defer cleanup()
+
+	fooService := &v1.Service{
+		Id:   uuid.NewString(),
+		Name: "foo",
+		Host: "httpbin.org",
+		Path: "/",
+	}
+	c := httpexpect.Default(t, "http://localhost:3000")
+	res := c.POST("/v1/services").WithJSON(fooService).Expect()
+	res.Status(http.StatusCreated)
+	fooRoute := &v1.Route{
+		Name:  "bar",
+		Paths: []string{"/"},
+		Service: &v1.Service{
+			Id: fooService.Id,
+		},
+	}
+	res = c.POST("/v1/routes").WithJSON(fooRoute).Expect()
+	res.Status(http.StatusCreated)
+
+	dpCleanup := run.KongDP(kong.GetKongConfForShared())
+	defer dpCleanup()
+
+	// ensure kong node is up
+	require.Nil(t, util.WaitForKongAdminAPI(t))
+	kongClient.RunWhenKong(t, ">= 2.5.0")
+
+	expectedConfig := &v1.TestingConfig{
+		Services: []*v1.Service{fooService},
+		Routes:   []*v1.Route{fooRoute},
+	}
+	util.WaitFunc(t, func() error {
+		return util.EnsureConfig(expectedConfig)
+	})
+
+	hashFromDPAfterFoo := ""
+	util.WaitFunc(t, func() error {
+		// once node is up, check the status endpoint
+		res = c.GET("/v1/nodes").Expect()
+		res.Status(http.StatusOK)
+		body := gjson.Parse(res.Body().Raw())
+		hash := body.Get("items.0.config_hash").String()
+		if len(hash) != 32 {
+			return fmt.Errorf(
+				"expected config hash to be 32 character long")
+		}
+		if hash == strings.Repeat("0", 32) {
+			return fmt.Errorf("expected hash to not be a string of 0s")
+		}
+		hashFromDPAfterFoo = hash
+		return nil
+	})
+
+	res = c.GET("/v1/expected-config-hash").Expect()
+	res.Status(http.StatusOK)
+	body := res.JSON().Object()
+	expectedHash := body.Value("expected_hash")
+	hashCreatedAt := body.Value("created_at")
+	hashUpdatedAt := body.Value("updated_at")
+	expectedHash.Equal(hashFromDPAfterFoo)
+	hashCreatedAt.Number().Gt(0)
+	hashUpdatedAt.Equal(hashCreatedAt.Raw())
+
+	// ensure that a hash is updated on the node and in the database after a
+	// configuration change
+	barService := &v1.Service{
+		Id:   uuid.NewString(),
+		Name: "bar",
+		Host: "httpbin.org",
+		Path: "/",
+	}
+	res = c.POST("/v1/services").WithJSON(barService).Expect()
+	res.Status(http.StatusCreated)
+
+	hashFromDPAfterBar := ""
+	util.WaitFunc(t, func() error {
+		// once node is up, check the status endpoint
+		res = c.GET("/v1/nodes").Expect()
+		res.Status(http.StatusOK)
+		body := gjson.Parse(res.Body().Raw())
+		hash := body.Get("items.0.config_hash").String()
+		if hashFromDPAfterFoo == hash {
+			return fmt.Errorf("node on hash not changed")
+		}
+		hashFromDPAfterBar = hash
+		return nil
+	})
+
+	res = c.GET("/v1/expected-config-hash").Expect()
+	res.Status(http.StatusOK)
+	body = res.JSON().Object()
+	body.Value("expected_hash").Equal(hashFromDPAfterBar)
+	body.Value("created_at").Equal(hashCreatedAt.Raw())
+	hashUpdatedAtFromDPAfterBar := body.Value("updated_at")
+	hashUpdatedAtFromDPAfterBar.Number().Gt(hashUpdatedAt.Raw())
+
+	newExpectedHash := res.JSON().Object().Value("expected_hash").String().Raw()
+	require.Equal(t, newExpectedHash, hashFromDPAfterBar)
+
+	// ensure that deleting the 'bar' service reverts the hash back to the
+	// previous one
+
+	res = c.DELETE("/v1/services/" + barService.Id).Expect()
+	res.Status(http.StatusNoContent)
+
+	hashAfterDelete := ""
+	util.WaitFunc(t, func() error {
+		// once node is up, check the status endpoint
+		res = c.GET("/v1/nodes").Expect()
+		res.Status(http.StatusOK)
+		body := gjson.Parse(res.Body().Raw())
+		hash := body.Get("items.0.config_hash").String()
+		if hashFromDPAfterBar == hash {
+			return fmt.Errorf("node on hash not changed")
+		}
+		hashAfterDelete = hash
+		return nil
+	})
+
+	res = c.GET("/v1/expected-config-hash").Expect()
+	res.Status(http.StatusOK)
+	body = res.JSON().Object()
+	body.Value("expected_hash").Equal(hashAfterDelete)
+	body.Value("created_at").Equal(hashCreatedAt.Raw())
+	body.Value("updated_at").Number().Gt(hashUpdatedAtFromDPAfterBar.Raw())
+	require.Equal(t, hashFromDPAfterFoo, hashAfterDelete)
+}

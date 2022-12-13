@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package kong.services.negotiation.v1;
+
+import "kong/model/negotiation.proto";
+
+option go_package = "github.com/kong/inc-kubernetes-controller/internal/koko/gen/wrpc/kong/service/negotiation/v1;v1";
+
+// NegotiationService allows DP to ask for services and CP answer with the accepted version of each
+// +wrpc:service-id=5
+service NegotiationService {
+  // NegotiateServices must be the first RPC call initiated by the DP upon a
+  // succesful connection.  It allows the CP to get which services does the DP
+  // handle and vice-versa.
+  //
+  // Call direction: DP to CP
+  // +wrpc:rpc-id=1
+  rpc NegotiateServices(kong.model.NegotiateServicesRequest) returns (kong.model.NegotiateServicesResponse);
+}

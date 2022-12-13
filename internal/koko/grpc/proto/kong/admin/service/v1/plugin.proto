@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package kong.admin.service.v1;
+
+import "google/api/annotations.proto";
+import "kong/admin/model/v1/cluster.proto";
+import "kong/admin/model/v1/pagination.proto";
+import "kong/admin/model/v1/plugin.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/kong/inc-kubernetes-controller/internal/koko/gen/kong/admin/service/v1;v1";
+
+service PluginService {
+  rpc GetConfiguredPlugins(GetConfiguredPluginsRequest) returns (GetConfiguredPluginsResponse) {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {description: "Returns plugins in use. '/v1/configured_plugins' is deprecated, please use '/v1/configured-plugins'."};
+    option (google.api.http) = {
+      get: "/v1/configured_plugins"
+      additional_bindings {get: "/v1/configured-plugins"}
+    };
+  }
+  rpc GetAvailablePlugins(GetAvailablePluginsRequest) returns (GetAvailablePluginsResponse) {
+    option (google.api.http) = {get: "/v1/available-plugins"};
+  }
+  rpc GetPlugin(GetPluginRequest) returns (GetPluginResponse) {
+    option (google.api.http) = {get: "/v1/plugins/{id}"};
+  }
+  rpc CreatePlugin(CreatePluginRequest) returns (CreatePluginResponse) {
+    option (google.api.http) = {
+      post: "/v1/plugins"
+      body: "item"
+    };
+  }
+  rpc UpsertPlugin(UpsertPluginRequest) returns (UpsertPluginResponse) {
+    option (google.api.http) = {
+      put: "/v1/plugins/{item.id}"
+      body: "item"
+    };
+  }
+  rpc DeletePlugin(DeletePluginRequest) returns (DeletePluginResponse) {
+    option (google.api.http) = {delete: "/v1/plugins/{id}"};
+  }
+  rpc ListPlugins(ListPluginsRequest) returns (ListPluginsResponse) {
+    option (google.api.http) = {get: "/v1/plugins"};
+  }
+}
+
+message GetPluginRequest {
+  string id = 1;
+  model.v1.RequestCluster cluster = 2;
+}
+
+message GetPluginResponse {
+  model.v1.Plugin item = 1;
+}
+
+message CreatePluginRequest {
+  model.v1.Plugin item = 1;
+  model.v1.RequestCluster cluster = 2;
+}
+
+message CreatePluginResponse {
+  model.v1.Plugin item = 1;
+}
+
+message UpsertPluginRequest {
+  model.v1.Plugin item = 1;
+  model.v1.RequestCluster cluster = 2;
+}
+
+message UpsertPluginResponse {
+  model.v1.Plugin item = 1;
+}
+
+message DeletePluginRequest {
+  string id = 1;
+  model.v1.RequestCluster cluster = 2;
+}
+
+message DeletePluginResponse {}
+
+message ListPluginsRequest {
+  model.v1.RequestCluster cluster = 1;
+  string service_id = 2;
+  string route_id = 3;
+  model.v1.PaginationRequest page = 4;
+  string consumer_id = 5;
+}
+
+message ListPluginsResponse {
+  repeated model.v1.Plugin items = 1;
+  model.v1.PaginationResponse page = 2;
+}
+
+message GetConfiguredPluginsRequest {
+  model.v1.RequestCluster cluster = 1;
+}
+
+message GetConfiguredPluginsResponse {
+  repeated string names = 1;
+}
+
+message GetAvailablePluginsRequest {
+  model.v1.RequestCluster cluster = 1;
+}
+
+message GetAvailablePluginsResponse {
+  repeated string names = 1;
+}

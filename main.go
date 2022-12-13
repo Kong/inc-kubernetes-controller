@@ -33,9 +33,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	configurationkonghqcomv1 "github.com/Kong/inc-kubernetes-controller/apis/configuration.konghq.com/v1"
-	configurationkonghqcomcontrollers "github.com/Kong/inc-kubernetes-controller/controllers/configuration.konghq.com"
-	networkingk8siocontrollers "github.com/Kong/inc-kubernetes-controller/controllers/networking.k8s.io"
+	configurationkonghqcomv1 "github.com/kong/inc-kubernetes-controller/apis/configuration.konghq.com/v1"
+	configurationkonghqcomcontrollers "github.com/kong/inc-kubernetes-controller/controllers/configuration.konghq.com"
+	networkingk8siocontrollers "github.com/kong/inc-kubernetes-controller/controllers/networking.k8s.io"
 	//+kubebuilder:scaffold:imports
 )
 

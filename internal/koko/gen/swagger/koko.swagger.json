@@ -1,0 +1,5010 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "kong/admin/model/v1/ca_certificate.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "kong.admin.service.v1.MetaService"
+    },
+    {
+      "name": "kong.admin.service.v1.CACertificateService"
+    },
+    {
+      "name": "kong.admin.service.v1.CertificateService"
+    },
+    {
+      "name": "kong.admin.service.v1.ConsumerService"
+    },
+    {
+      "name": "kong.admin.service.v1.NodeService"
+    },
+    {
+      "name": "kong.admin.service.v1.PluginService"
+    },
+    {
+      "name": "kong.admin.service.v1.PluginSchemaService"
+    },
+    {
+      "name": "kong.admin.service.v1.RouteService"
+    },
+    {
+      "name": "kong.admin.service.v1.SchemasService"
+    },
+    {
+      "name": "kong.admin.service.v1.ServiceService"
+    },
+    {
+      "name": "kong.admin.service.v1.SNIService"
+    },
+    {
+      "name": "kong.admin.service.v1.StatusService"
+    },
+    {
+      "name": "kong.admin.service.v1.TargetService"
+    },
+    {
+      "name": "kong.admin.service.v1.UpstreamService"
+    },
+    {
+      "name": "kong.admin.service.v1.VaultService"
+    },
+    {
+      "name": "kong.relay.service.v1.EventService"
+    },
+    {
+      "name": "kong.relay.service.v1.StatusService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/available-plugins": {
+      "get": {
+        "operationId": "PluginService_GetAvailablePlugins",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetAvailablePluginsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginService"
+        ]
+      }
+    },
+    "/v1/ca-certificates": {
+      "get": {
+        "operationId": "CACertificateService_ListCACertificates",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListCACertificatesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.CACertificateService"
+        ]
+      },
+      "post": {
+        "operationId": "CACertificateService_CreateCACertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.CreateCACertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.CACertificate"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.CACertificateService"
+        ]
+      }
+    },
+    "/v1/ca-certificates/{id}": {
+      "get": {
+        "operationId": "CACertificateService_GetCACertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetCACertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.CACertificateService"
+        ]
+      },
+      "delete": {
+        "operationId": "CACertificateService_DeleteCACertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeleteCACertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.CACertificateService"
+        ]
+      }
+    },
+    "/v1/ca-certificates/{item.id}": {
+      "put": {
+        "operationId": "CACertificateService_UpsertCACertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.UpsertCACertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "created_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "updated_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "cert": {
+                  "type": "string",
+                  "description": "PEM encoded certificate"
+                },
+                "cert_digest": {
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "cert"
+              ]
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.CACertificateService"
+        ]
+      }
+    },
+    "/v1/certificates": {
+      "get": {
+        "operationId": "CertificateService_ListCertificates",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListCertificatesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.CertificateService"
+        ]
+      },
+      "post": {
+        "operationId": "CertificateService_CreateCertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.CreateCertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.CertificateService"
+        ]
+      }
+    },
+    "/v1/certificates/{id}": {
+      "get": {
+        "operationId": "CertificateService_GetCertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetCertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.CertificateService"
+        ]
+      },
+      "delete": {
+        "operationId": "CertificateService_DeleteCertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeleteCertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.CertificateService"
+        ]
+      }
+    },
+    "/v1/certificates/{item.id}": {
+      "put": {
+        "operationId": "CertificateService_UpsertCertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.UpsertCertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "created_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "updated_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "cert": {
+                  "type": "string",
+                  "description": "PEM encoded certificate (referenceable)"
+                },
+                "key": {
+                  "type": "string",
+                  "description": "PEM encoded private key (referenceable)"
+                },
+                "cert_alt": {
+                  "type": "string",
+                  "description": "PEM encoded certificate (referenceable)"
+                },
+                "key_alt": {
+                  "type": "string",
+                  "description": "PEM encoded private key (referenceable)"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "cert",
+                "key"
+              ]
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.CertificateService"
+        ]
+      }
+    },
+    "/v1/configured-plugins": {
+      "get": {
+        "description": "Returns plugins in use. '/v1/configured_plugins' is deprecated, please use '/v1/configured-plugins'.",
+        "operationId": "PluginService_GetConfiguredPlugins2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetConfiguredPluginsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginService"
+        ]
+      }
+    },
+    "/v1/configured_plugins": {
+      "get": {
+        "description": "Returns plugins in use. '/v1/configured_plugins' is deprecated, please use '/v1/configured-plugins'.",
+        "operationId": "PluginService_GetConfiguredPlugins",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetConfiguredPluginsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginService"
+        ]
+      }
+    },
+    "/v1/consumers": {
+      "get": {
+        "operationId": "ConsumerService_ListConsumers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListConsumersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.ConsumerService"
+        ]
+      },
+      "post": {
+        "operationId": "ConsumerService_CreateConsumer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.CreateConsumerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Consumer"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.ConsumerService"
+        ]
+      }
+    },
+    "/v1/consumers/{id}": {
+      "get": {
+        "operationId": "ConsumerService_GetConsumer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetConsumerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "custom_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.ConsumerService"
+        ]
+      },
+      "delete": {
+        "operationId": "ConsumerService_DeleteConsumer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeleteConsumerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.ConsumerService"
+        ]
+      }
+    },
+    "/v1/consumers/{item.id}": {
+      "put": {
+        "operationId": "ConsumerService_UpsertConsumer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.UpsertConsumerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "updated_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "custom_id": {
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.ConsumerService"
+        ]
+      }
+    },
+    "/v1/expected-config-hash": {
+      "get": {
+        "operationId": "StatusService_GetHash",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetHashResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.StatusService"
+        ]
+      }
+    },
+    "/v1/meta/version": {
+      "get": {
+        "operationId": "MetaService_GetVersion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetVersionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "tags": [
+          "kong.admin.service.v1.MetaService"
+        ]
+      }
+    },
+    "/v1/nodes": {
+      "get": {
+        "operationId": "NodeService_ListNodes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListNodesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.NodeService"
+        ]
+      }
+    },
+    "/v1/nodes/{id}": {
+      "get": {
+        "operationId": "NodeService_GetNode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetNodeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.NodeService"
+        ]
+      },
+      "delete": {
+        "operationId": "NodeService_DeleteNode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeleteNodeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.NodeService"
+        ]
+      }
+    },
+    "/v1/plugin-schemas": {
+      "get": {
+        "operationId": "PluginSchemaService_ListLuaPluginSchemas",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListLuaPluginSchemasResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginSchemaService"
+        ]
+      },
+      "post": {
+        "operationId": "PluginSchemaService_CreateLuaPluginSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.CreateLuaPluginSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.PluginSchema"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginSchemaService"
+        ]
+      }
+    },
+    "/v1/plugin-schemas/{name}": {
+      "get": {
+        "operationId": "PluginSchemaService_GetLuaPluginSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetLuaPluginSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginSchemaService"
+        ]
+      },
+      "delete": {
+        "operationId": "PluginSchemaService_DeleteLuaPluginSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeleteLuaPluginSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginSchemaService"
+        ]
+      },
+      "put": {
+        "operationId": "PluginSchemaService_UpsertLuaPluginSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.UpsertLuaPluginSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.PluginSchema"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginSchemaService"
+        ]
+      }
+    },
+    "/v1/plugins": {
+      "get": {
+        "operationId": "PluginService_ListPlugins",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListPluginsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "service_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "route_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "consumer_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginService"
+        ]
+      },
+      "post": {
+        "operationId": "PluginService_CreatePlugin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.CreatePluginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Plugin"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginService"
+        ]
+      }
+    },
+    "/v1/plugins/{id}": {
+      "get": {
+        "operationId": "PluginService_GetPlugin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetPluginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginService"
+        ]
+      },
+      "delete": {
+        "operationId": "PluginService_DeletePlugin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeletePluginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginService"
+        ]
+      }
+    },
+    "/v1/plugins/{item.id}": {
+      "put": {
+        "operationId": "PluginService_UpsertPlugin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.UpsertPluginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "updated_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "protocols": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "service": {
+                  "$ref": "#/definitions/kong.admin.model.v1.Service"
+                },
+                "route": {
+                  "$ref": "#/definitions/kong.admin.model.v1.Route"
+                },
+                "config": {
+                  "type": "object"
+                },
+                "consumer": {
+                  "$ref": "#/definitions/kong.admin.model.v1.Consumer"
+                },
+                "ordering": {
+                  "$ref": "#/definitions/kong.admin.model.v1.Ordering"
+                }
+              }
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.PluginService"
+        ]
+      }
+    },
+    "/v1/routes": {
+      "get": {
+        "operationId": "RouteService_ListRoutes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListRoutesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "service_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.RouteService"
+        ]
+      },
+      "post": {
+        "operationId": "RouteService_CreateRoute",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.CreateRouteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Route"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.RouteService"
+        ]
+      }
+    },
+    "/v1/routes/{id}": {
+      "get": {
+        "operationId": "RouteService_GetRoute",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetRouteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.RouteService"
+        ]
+      },
+      "delete": {
+        "operationId": "RouteService_DeleteRoute",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeleteRouteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.RouteService"
+        ]
+      }
+    },
+    "/v1/routes/{item.id}": {
+      "put": {
+        "operationId": "RouteService_UpsertRoute",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.UpsertRouteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headers": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/definitions/kong.admin.model.v1.HeaderValues"
+                  }
+                },
+                "hosts": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "created_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "methods": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "paths": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "path_handling": {
+                  "type": "string"
+                },
+                "preserve_host": {
+                  "type": "boolean"
+                },
+                "protocols": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "regex_priority": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "strip_path": {
+                  "type": "boolean"
+                },
+                "updated_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "snis": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "sources": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/kong.admin.model.v1.CIDRPort"
+                  }
+                },
+                "destinations": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/kong.admin.model.v1.CIDRPort"
+                  }
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "https_redirect_status_code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "request_buffering": {
+                  "type": "boolean"
+                },
+                "response_buffering": {
+                  "type": "boolean"
+                },
+                "service": {
+                  "$ref": "#/definitions/kong.admin.model.v1.Service"
+                }
+              }
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.RouteService"
+        ]
+      }
+    },
+    "/v1/schemas/json/ca-certificate/validate": {
+      "post": {
+        "operationId": "SchemasService_ValidateCACertificateSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ValidateCACertificateSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.CACertificate"
+            }
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/json/certificate/validate": {
+      "post": {
+        "operationId": "SchemasService_ValidateCertificateSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ValidateCertificateSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+            }
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/json/consumer/validate": {
+      "post": {
+        "operationId": "SchemasService_ValidateConsumerSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ValidateConsumerSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Consumer"
+            }
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/json/plugin/validate": {
+      "post": {
+        "operationId": "SchemasService_ValidatePluginSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ValidatePluginSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Plugin"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/json/route/validate": {
+      "post": {
+        "operationId": "SchemasService_ValidateRouteSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ValidateRouteSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Route"
+            }
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/json/service/validate": {
+      "post": {
+        "operationId": "SchemasService_ValidateServiceSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ValidateServiceSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Service"
+            }
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/json/sni/validate": {
+      "post": {
+        "operationId": "SchemasService_ValidateSNISchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ValidateSNISchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.SNI"
+            }
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/json/target/validate": {
+      "post": {
+        "operationId": "SchemasService_ValidateTargetSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ValidateTargetSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Target"
+            }
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/json/upstream/validate": {
+      "post": {
+        "operationId": "SchemasService_ValidateUpstreamSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ValidateUpstreamSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Upstream"
+            }
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/json/vault/validate": {
+      "post": {
+        "operationId": "SchemasService_ValidateVaultSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ValidateVaultSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Vault"
+            }
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/json/{name}": {
+      "get": {
+        "operationId": "SchemasService_GetSchemas",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/lua/plugins/validate": {
+      "post": {
+        "operationId": "SchemasService_ValidateLuaPlugin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ValidateLuaPluginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Plugin"
+            }
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/schemas/lua/plugins/{name}": {
+      "get": {
+        "operationId": "SchemasService_GetLuaSchemasPlugin",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SchemasService"
+        ]
+      }
+    },
+    "/v1/services": {
+      "get": {
+        "operationId": "ServiceService_ListServices",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListServicesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.ServiceService"
+        ]
+      },
+      "post": {
+        "operationId": "ServiceService_CreateService",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.CreateServiceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Service"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.ServiceService"
+        ]
+      }
+    },
+    "/v1/services/{id}": {
+      "get": {
+        "operationId": "ServiceService_GetService",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetServiceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.ServiceService"
+        ]
+      },
+      "delete": {
+        "operationId": "ServiceService_DeleteService",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeleteServiceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.ServiceService"
+        ]
+      }
+    },
+    "/v1/services/{item.id}": {
+      "put": {
+        "operationId": "ServiceService_UpsertService",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.UpsertServiceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "connect_timeout": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "created_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "host": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "port": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "protocol": {
+                  "type": "string"
+                },
+                "read_timeout": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "retries": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "updated_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "write_timeout": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "tls_verify": {
+                  "type": "boolean"
+                },
+                "tls_verify_depth": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "client_certificate": {
+                  "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+                },
+                "ca_certificates": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "enabled": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.ServiceService"
+        ]
+      }
+    },
+    "/v1/snis": {
+      "get": {
+        "operationId": "SNIService_ListSNIs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListSNIsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "certificate_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SNIService"
+        ]
+      },
+      "post": {
+        "operationId": "SNIService_CreateSNI",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.CreateSNIResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.SNI"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SNIService"
+        ]
+      }
+    },
+    "/v1/snis/{id}": {
+      "get": {
+        "operationId": "SNIService_GetSNI",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetSNIResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SNIService"
+        ]
+      },
+      "delete": {
+        "operationId": "SNIService_DeleteSNI",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeleteSNIResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SNIService"
+        ]
+      }
+    },
+    "/v1/snis/{item.id}": {
+      "put": {
+        "operationId": "SNIService_UpsertSNI",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.UpsertSNIResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "certificate": {
+                  "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+                },
+                "created_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "updated_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.SNIService"
+        ]
+      }
+    },
+    "/v1/targets": {
+      "get": {
+        "operationId": "TargetService_ListTargets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListTargetsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "upstream_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.TargetService"
+        ]
+      },
+      "post": {
+        "operationId": "TargetService_CreateTarget",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.CreateTargetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Target"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.TargetService"
+        ]
+      }
+    },
+    "/v1/targets/{id}": {
+      "get": {
+        "operationId": "TargetService_GetTarget",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetTargetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.TargetService"
+        ]
+      },
+      "delete": {
+        "operationId": "TargetService_DeleteTarget",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeleteTargetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.TargetService"
+        ]
+      }
+    },
+    "/v1/targets/{item.id}": {
+      "put": {
+        "operationId": "TargetService_UpsertTarget",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.UpsertTargetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "string"
+                },
+                "weight": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "created_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "updated_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "upstream": {
+                  "$ref": "#/definitions/kong.admin.model.v1.Upstream"
+                }
+              }
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.TargetService"
+        ]
+      }
+    },
+    "/v1/upstreams": {
+      "get": {
+        "operationId": "UpstreamService_ListUpstreams",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListUpstreamsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.UpstreamService"
+        ]
+      },
+      "post": {
+        "operationId": "UpstreamService_CreateUpstream",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.CreateUpstreamResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Upstream"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.UpstreamService"
+        ]
+      }
+    },
+    "/v1/upstreams/{id}": {
+      "get": {
+        "operationId": "UpstreamService_GetUpstream",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetUpstreamResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.UpstreamService"
+        ]
+      },
+      "delete": {
+        "operationId": "UpstreamService_DeleteUpstream",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeleteUpstreamResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.UpstreamService"
+        ]
+      }
+    },
+    "/v1/upstreams/{item.id}": {
+      "put": {
+        "operationId": "UpstreamService_UpsertUpstream",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.UpsertUpstreamResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "algorithm": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "updated_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "hash_on": {
+                  "type": "string"
+                },
+                "hash_fallback": {
+                  "type": "string"
+                },
+                "hash_on_header": {
+                  "type": "string"
+                },
+                "hash_fallback_header": {
+                  "type": "string"
+                },
+                "hash_on_cookie": {
+                  "type": "string"
+                },
+                "hash_on_cookie_path": {
+                  "type": "string"
+                },
+                "slots": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "healthchecks": {
+                  "$ref": "#/definitions/kong.admin.model.v1.Healthchecks"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "host_header": {
+                  "type": "string"
+                },
+                "client_certificate": {
+                  "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+                },
+                "hash_on_query_arg": {
+                  "type": "string"
+                },
+                "hash_fallback_query_arg": {
+                  "type": "string"
+                },
+                "hash_on_uri_capture": {
+                  "type": "string"
+                },
+                "hash_fallback_uri_capture": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.UpstreamService"
+        ]
+      }
+    },
+    "/v1/vaults": {
+      "get": {
+        "operationId": "VaultService_ListVaults",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.ListVaultsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.number",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.filter",
+            "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.VaultService"
+        ]
+      },
+      "post": {
+        "operationId": "VaultService_CreateVault",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.CreateVaultResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/kong.admin.model.v1.Vault"
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.VaultService"
+        ]
+      }
+    },
+    "/v1/vaults/{id}": {
+      "get": {
+        "operationId": "VaultService_GetVault",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.GetVaultResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.VaultService"
+        ]
+      },
+      "delete": {
+        "operationId": "VaultService_DeleteVault",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.DeleteVaultResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.VaultService"
+        ]
+      }
+    },
+    "/v1/vaults/{item.id}": {
+      "put": {
+        "operationId": "VaultService_UpsertVault",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/kong.admin.service.v1.UpsertVaultResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "item",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "created_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "updated_at": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "prefix": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "config": {
+                  "$ref": "#/definitions/kong.admin.model.v1.Vault.Config"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "prefix",
+                "name"
+              ]
+            }
+          },
+          {
+            "name": "cluster.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "kong.admin.service.v1.VaultService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "google.protobuf.Any": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "google.protobuf.NullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "google.rpc.Status": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/google.protobuf.Any"
+          }
+        }
+      }
+    },
+    "kong.admin.model.v1.ActiveHealthcheck": {
+      "type": "object",
+      "properties": {
+        "concurrency": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "healthy": {
+          "$ref": "#/definitions/kong.admin.model.v1.ActiveHealthyCondition"
+        },
+        "http_path": {
+          "type": "string"
+        },
+        "https_sni": {
+          "type": "string"
+        },
+        "https_verify_certificate": {
+          "type": "boolean"
+        },
+        "type": {
+          "type": "string"
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "unhealthy": {
+          "$ref": "#/definitions/kong.admin.model.v1.ActiveUnhealthyCondition"
+        }
+      }
+    },
+    "kong.admin.model.v1.ActiveHealthyCondition": {
+      "type": "object",
+      "properties": {
+        "http_statuses": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "interval": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "successes": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "kong.admin.model.v1.ActiveUnhealthyCondition": {
+      "type": "object",
+      "properties": {
+        "http_failures": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tcp_failures": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "http_statuses": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "timeouts": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "interval": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "kong.admin.model.v1.CACertificate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "cert": {
+          "type": "string",
+          "description": "PEM encoded certificate"
+        },
+        "cert_digest": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "cert"
+      ]
+    },
+    "kong.admin.model.v1.CIDRPort": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "kong.admin.model.v1.Certificate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "cert": {
+          "type": "string",
+          "description": "PEM encoded certificate (referenceable)"
+        },
+        "key": {
+          "type": "string",
+          "description": "PEM encoded private key (referenceable)"
+        },
+        "cert_alt": {
+          "type": "string",
+          "description": "PEM encoded certificate (referenceable)"
+        },
+        "key_alt": {
+          "type": "string",
+          "description": "PEM encoded private key (referenceable)"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "cert",
+        "key"
+      ]
+    },
+    "kong.admin.model.v1.CompatibilityIssue": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "resolution": {
+          "type": "string"
+        },
+        "affected_resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.Resource"
+          }
+        }
+      }
+    },
+    "kong.admin.model.v1.CompatibilityState": {
+      "type": "string",
+      "enum": [
+        "COMPATIBILITY_STATE_UNSPECIFIED",
+        "COMPATIBILITY_STATE_FULLY_COMPATIBLE",
+        "COMPATIBILITY_STATE_INCOMPATIBLE",
+        "COMPATIBILITY_STATE_UNKNOWN"
+      ],
+      "default": "COMPATIBILITY_STATE_UNSPECIFIED"
+    },
+    "kong.admin.model.v1.CompatibilityStatus": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "$ref": "#/definitions/kong.admin.model.v1.CompatibilityState"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.CompatibilityIssue"
+          }
+        }
+      }
+    },
+    "kong.admin.model.v1.Consumer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "custom_id": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "kong.admin.model.v1.HeaderValues": {
+      "type": "object",
+      "properties": {
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "kong.admin.model.v1.Healthchecks": {
+      "type": "object",
+      "properties": {
+        "active": {
+          "$ref": "#/definitions/kong.admin.model.v1.ActiveHealthcheck"
+        },
+        "passive": {
+          "$ref": "#/definitions/kong.admin.model.v1.PassiveHealthcheck"
+        },
+        "threshold": {
+          "type": "number",
+          "format": "float"
+        }
+      }
+    },
+    "kong.admin.model.v1.Node": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "last_ping": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "type": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "config_hash": {
+          "type": "string"
+        },
+        "compatibility_status": {
+          "$ref": "#/definitions/kong.admin.model.v1.CompatibilityStatus"
+        }
+      }
+    },
+    "kong.admin.model.v1.Order": {
+      "type": "object",
+      "properties": {
+        "access": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "kong.admin.model.v1.Ordering": {
+      "type": "object",
+      "properties": {
+        "before": {
+          "$ref": "#/definitions/kong.admin.model.v1.Order"
+        },
+        "after": {
+          "$ref": "#/definitions/kong.admin.model.v1.Order"
+        }
+      }
+    },
+    "kong.admin.model.v1.PaginationRequest": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "number": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "filter": {
+          "type": "string",
+          "description": "Allows callers to provide a CEL expression to filter results on `list` API calls.\n\nFor example, given a resource with the following tags, `tag1` \u0026 `tag2`, the\nfollowing CEL expressions are supported:\n\n- Matches resources that have `tag1` as any tag:\n    - `\"tag1\" in tags`\n- Matches all resources that have both `tag1` \u0026 `tag2`:\n    - `[\"tag1\", \"tag2\"].all(x, x in tags)`\n    - `\"tag1\" in tags \u0026\u0026 \"tag2\" in tags`\n- Matches resources that have `tag1` or `tag2`:\n    - `[\"tag1\", \"tag2\"].exists(x, x in tags)`\n    - `\"tag1\" in tags || \"tag2\" in tags`\n\nLimitations:\nCurrently, it is only possible to filter on tags, and supported logical\noperators/macros are limited to only what is documented above.\n\nFor further information, you may view the CEL Specification:\nhttps://github.com/google/cel-spec"
+        }
+      }
+    },
+    "kong.admin.model.v1.PaginationResponse": {
+      "type": "object",
+      "properties": {
+        "total_count": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "next_page_num": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "kong.admin.model.v1.PassiveHealthcheck": {
+      "type": "object",
+      "properties": {
+        "healthy": {
+          "$ref": "#/definitions/kong.admin.model.v1.PassiveHealthyCondition"
+        },
+        "type": {
+          "type": "string"
+        },
+        "unhealthy": {
+          "$ref": "#/definitions/kong.admin.model.v1.PassiveUnhealthyCondition"
+        }
+      }
+    },
+    "kong.admin.model.v1.PassiveHealthyCondition": {
+      "type": "object",
+      "properties": {
+        "http_statuses": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "successes": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "kong.admin.model.v1.PassiveUnhealthyCondition": {
+      "type": "object",
+      "properties": {
+        "http_failures": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tcp_failures": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "http_statuses": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "timeouts": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "kong.admin.model.v1.Plugin": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "protocols": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "service": {
+          "$ref": "#/definitions/kong.admin.model.v1.Service"
+        },
+        "route": {
+          "$ref": "#/definitions/kong.admin.model.v1.Route"
+        },
+        "config": {
+          "type": "object"
+        },
+        "consumer": {
+          "$ref": "#/definitions/kong.admin.model.v1.Consumer"
+        },
+        "ordering": {
+          "$ref": "#/definitions/kong.admin.model.v1.Ordering"
+        }
+      }
+    },
+    "kong.admin.model.v1.PluginSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "lua_schema": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "kong.admin.model.v1.RequestCluster": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "kong.admin.model.v1.Resource": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "kong.admin.model.v1.Route": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/kong.admin.model.v1.HeaderValues"
+          }
+        },
+        "hosts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "path_handling": {
+          "type": "string"
+        },
+        "preserve_host": {
+          "type": "boolean"
+        },
+        "protocols": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "regex_priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "strip_path": {
+          "type": "boolean"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "snis": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.CIDRPort"
+          }
+        },
+        "destinations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.CIDRPort"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "https_redirect_status_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "request_buffering": {
+          "type": "boolean"
+        },
+        "response_buffering": {
+          "type": "boolean"
+        },
+        "service": {
+          "$ref": "#/definitions/kong.admin.model.v1.Service"
+        }
+      }
+    },
+    "kong.admin.model.v1.SNI": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "certificate": {
+          "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "kong.admin.model.v1.Service": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "connect_timeout": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "host": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "protocol": {
+          "type": "string"
+        },
+        "read_timeout": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "retries": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "url": {
+          "type": "string"
+        },
+        "write_timeout": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tls_verify": {
+          "type": "boolean"
+        },
+        "tls_verify_depth": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "client_certificate": {
+          "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+        },
+        "ca_certificates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "kong.admin.model.v1.Target": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "upstream": {
+          "$ref": "#/definitions/kong.admin.model.v1.Upstream"
+        }
+      }
+    },
+    "kong.admin.model.v1.Upstream": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "algorithm": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "hash_on": {
+          "type": "string"
+        },
+        "hash_fallback": {
+          "type": "string"
+        },
+        "hash_on_header": {
+          "type": "string"
+        },
+        "hash_fallback_header": {
+          "type": "string"
+        },
+        "hash_on_cookie": {
+          "type": "string"
+        },
+        "hash_on_cookie_path": {
+          "type": "string"
+        },
+        "slots": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "healthchecks": {
+          "$ref": "#/definitions/kong.admin.model.v1.Healthchecks"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "host_header": {
+          "type": "string"
+        },
+        "client_certificate": {
+          "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+        },
+        "hash_on_query_arg": {
+          "type": "string"
+        },
+        "hash_fallback_query_arg": {
+          "type": "string"
+        },
+        "hash_on_uri_capture": {
+          "type": "string"
+        },
+        "hash_fallback_uri_capture": {
+          "type": "string"
+        }
+      }
+    },
+    "kong.admin.model.v1.Vault": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "config": {
+          "$ref": "#/definitions/kong.admin.model.v1.Vault.Config"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "prefix",
+        "name"
+      ]
+    },
+    "kong.admin.model.v1.Vault.AwsConfig": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string"
+        }
+      }
+    },
+    "kong.admin.model.v1.Vault.Config": {
+      "type": "object",
+      "properties": {
+        "env": {
+          "$ref": "#/definitions/kong.admin.model.v1.Vault.EnvConfig"
+        },
+        "aws": {
+          "$ref": "#/definitions/kong.admin.model.v1.Vault.AwsConfig"
+        },
+        "gcp": {
+          "$ref": "#/definitions/kong.admin.model.v1.Vault.GcpConfig"
+        },
+        "hcv": {
+          "$ref": "#/definitions/kong.admin.model.v1.Vault.HcvConfig"
+        }
+      }
+    },
+    "kong.admin.model.v1.Vault.EnvConfig": {
+      "type": "object",
+      "properties": {
+        "prefix": {
+          "type": "string"
+        }
+      }
+    },
+    "kong.admin.model.v1.Vault.GcpConfig": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "type": "string"
+        }
+      }
+    },
+    "kong.admin.model.v1.Vault.HcvConfig": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "protocol": {
+          "type": "string"
+        },
+        "mount": {
+          "type": "string"
+        },
+        "kv": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "auth_method": {
+          "type": "string"
+        },
+        "kube_role": {
+          "type": "string"
+        },
+        "kube_api_token_file": {
+          "type": "string"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreateCACertificateResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.CACertificate"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreateCertificateResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreateConsumerResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Consumer"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreateLuaPluginSchemaResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.PluginSchema"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreateNodeResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Node"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreatePluginResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Plugin"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreateRouteResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Route"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreateSNIResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.SNI"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreateServiceResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Service"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreateTargetResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Target"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreateUpstreamResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Upstream"
+        }
+      }
+    },
+    "kong.admin.service.v1.CreateVaultResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Vault"
+        }
+      }
+    },
+    "kong.admin.service.v1.DeleteCACertificateResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.DeleteCertificateResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.DeleteConsumerResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.DeleteLuaPluginSchemaResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.DeleteNodeResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.DeletePluginResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.DeleteRouteResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.DeleteSNIResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.DeleteServiceResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.DeleteTargetResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.DeleteUpstreamResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.DeleteVaultResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.GetAvailablePluginsResponse": {
+      "type": "object",
+      "properties": {
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "kong.admin.service.v1.GetCACertificateResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.CACertificate"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetCertificateResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetConfiguredPluginsResponse": {
+      "type": "object",
+      "properties": {
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "kong.admin.service.v1.GetConsumerResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Consumer"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetHashResponse": {
+      "type": "object",
+      "properties": {
+        "expected_hash": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetLuaPluginSchemaResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.PluginSchema"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetLuaSchemasPluginResponse": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "object"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetNodeResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Node"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetPluginResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Plugin"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetRouteResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Route"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetSNIResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.SNI"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetSchemasResponse": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "object"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetServiceResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Service"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetTargetResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Target"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetUpstreamResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Upstream"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetVaultResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Vault"
+        }
+      }
+    },
+    "kong.admin.service.v1.GetVersionResponse": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListCACertificatesResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.CACertificate"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListCertificatesResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListConsumersResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.Consumer"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListLuaPluginSchemasResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.PluginSchema"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListNodesResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.Node"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListPluginsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.Plugin"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListRoutesResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.Route"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListSNIsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.SNI"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListServicesResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.Service"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListTargetsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.Target"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListUpstreamsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.Upstream"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.ListVaultsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.Vault"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/kong.admin.model.v1.PaginationResponse"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertCACertificateResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.CACertificate"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertCertificateResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Certificate"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertConsumerResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Consumer"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertLuaPluginSchemaResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.PluginSchema"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertNodeResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Node"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertPluginResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Plugin"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertRouteResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Route"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertSNIResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.SNI"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertServiceResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Service"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertTargetResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Target"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertUpstreamResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Upstream"
+        }
+      }
+    },
+    "kong.admin.service.v1.UpsertVaultResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/kong.admin.model.v1.Vault"
+        }
+      }
+    },
+    "kong.admin.service.v1.ValidateCACertificateSchemaResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.ValidateCertificateSchemaResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.ValidateConsumerSchemaResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.ValidateLuaPluginResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.ValidatePluginSchemaResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.ValidateRouteSchemaResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.ValidateSNISchemaResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.ValidateServiceSchemaResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.ValidateTargetSchemaResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.ValidateUpstreamSchemaResponse": {
+      "type": "object"
+    },
+    "kong.admin.service.v1.ValidateVaultSchemaResponse": {
+      "type": "object"
+    },
+    "kong.nonpublic.v1.NodeStatus": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kong.admin.model.v1.CompatibilityIssue"
+          }
+        }
+      }
+    },
+    "kong.relay.service.v1.FetchReconfigureEventsResponse": {
+      "type": "object"
+    },
+    "kong.relay.service.v1.UpdateExpectedHashResponse": {
+      "type": "object"
+    },
+    "kong.relay.service.v1.UpdateNodeStatusResponse": {
+      "type": "object"
+    }
+  }
+}

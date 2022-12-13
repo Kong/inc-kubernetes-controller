@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package kong.admin.model.v1;
+
+option go_package = "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/model/v1;v1";
+
+message RequestCluster {
+  string id = 1;
+}

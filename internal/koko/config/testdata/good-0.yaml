@@ -1,0 +1,37 @@
+log:
+  level: debug
+  format: console
+admin_server:
+  address: ":3001"
+database:
+  dialect: postgres
+  query_timeout: 2s
+  sqlite:
+    in_memory: true
+    filename: test.db
+  postgres:
+    hostname: localhost
+    port: 5433
+    db_name: koko
+    user: koko
+    password: koko
+    tls:
+      enable: true
+      ca_bundle_path: "/tmp/foo.crt"
+    read_replica:
+      hostname: "read-localhost"
+    pool:
+      name: pgx
+      max_connections: 30
+      min_connections: 5
+      max_connection_idle_time: 10m
+      max_connection_lifetime: 20m
+      health_check_period: 30s
+metrics:
+  client_type: "noop"
+  prometheus:
+    enable: false
+control_server:
+  tls_cert_path: foo.crt
+  tls_key_path: bar.key
+disable_anonymous_reports: true

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package kong.admin.model.v1;
+
+option go_package = "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/model/v1;v1";
+
+enum ErrorType {
+  ERROR_TYPE_UNSPECIFIED = 0;
+  ERROR_TYPE_FIELD = 1;
+  ERROR_TYPE_ENTITY = 2;
+  ERROR_TYPE_REFERENCE = 3;
+}
+
+message ErrorDetail {
+  ErrorType type = 1;
+  string field = 2;
+  repeated string messages = 3;
+}

@@ -1,0 +1,24 @@
+version: v1
+plugins:
+  - name: go
+    out: internal/gen/grpc
+    opt:
+    - paths=source_relative
+  - name: go-grpc
+    out: internal/gen/grpc
+    opt:
+    - paths=source_relative
+  - name: grpc-gateway
+    out: internal/gen/grpc
+    opt:
+      - paths=source_relative
+  - name: openapiv2
+    out: internal/gen
+    opt:
+      - include_package_in_tags=true
+      - allow_merge=true
+      - allow_repeated_fields_in_body=true
+      - openapi_naming_strategy=fqn
+      - merge_file_name=swagger/koko
+      - json_names_for_fields=false
+    strategy: all

@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	configurationkonghqcomv1 "github.com/Kong/inc-kubernetes-controller/apis/configuration.konghq.com/v1"
+	configurationkonghqcomv1 "github.com/kong/inc-kubernetes-controller/apis/configuration.konghq.com/v1"
 )
 
 // KongPluginReconciler reconciles a KongPlugin object

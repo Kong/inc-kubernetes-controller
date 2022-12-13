@@ -33,7 +33,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	configurationkonghqcomv1 "github.com/Kong/inc-kubernetes-controller/apis/configuration.konghq.com/v1"
+	configurationkonghqcomv1 "github.com/kong/inc-kubernetes-controller/apis/configuration.konghq.com/v1"
 	//+kubebuilder:scaffold:imports
 )
 

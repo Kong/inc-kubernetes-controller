@@ -33,7 +33,7 @@ type KongPluginReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=configuration.konghq.com.konghq.com,resources=kongplugins,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=configuration.konghq.com.konghq.com,resources=kongplugins,verbs=get;list;watch
 //+kubebuilder:rbac:groups=configuration.konghq.com.konghq.com,resources=kongplugins/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=configuration.konghq.com.konghq.com,resources=kongplugins/finalizers,verbs=update
 

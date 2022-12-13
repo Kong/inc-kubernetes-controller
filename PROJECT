@@ -4,4 +4,19 @@ layout:
 multigroup: true
 projectName: kin
 repo: github.com/Kong/inc-kubernetes-controller
+resources:
+- controller: true
+  domain: networking
+  group: k8s.io
+  kind: Ingress
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: konghq.com
+  group: configuration
+  kind: KongPlugin
+  path: github.com/Kong/inc-kubernetes-controller/apis/configuration.konghq.com/v1
+  version: v1
 version: "3"

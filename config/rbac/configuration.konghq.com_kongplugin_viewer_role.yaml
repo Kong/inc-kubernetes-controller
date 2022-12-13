@@ -1,0 +1,27 @@
+# permissions for end users to view kongplugins.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: kongplugin-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: kin
+    app.kubernetes.io/part-of: kin
+    app.kubernetes.io/managed-by: kustomize
+  name: kongplugin-viewer-role
+rules:
+- apiGroups:
+  - configuration.konghq.com.konghq.com
+  resources:
+  - kongplugins
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - configuration.konghq.com.konghq.com
+  resources:
+  - kongplugins/status
+  verbs:
+  - get

@@ -1,0 +1,12 @@
+apiVersion: configuration.konghq.com.konghq.com/v1
+kind: KongPlugin
+metadata:
+  labels:
+    app.kubernetes.io/name: kongplugin
+    app.kubernetes.io/instance: kongplugin-sample
+    app.kubernetes.io/part-of: kin
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: kin
+  name: kongplugin-sample
+spec:
+  # TODO(user): Add fields here

@@ -23,18 +23,19 @@ import (
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/client-go/rest"
 
 	corev1 "k8s.io/api/core/v1"
 	// networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/tools/clientcmd"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	configurationkonghqcomv1 "github.com/kong/inc-kubernetes-controller/apis/configuration.konghq.com/v1"
-	configurationkonghqcomcontrollers "github.com/kong/inc-kubernetes-controller/controllers/configuration.konghq.com"
 	networkingk8siocontrollers "github.com/kong/inc-kubernetes-controller/controllers/networking.k8s.io"
 	"github.com/kong/inc-kubernetes-controller/internal/datastore"
 	//+kubebuilder:scaffold:imports
@@ -69,9 +70,19 @@ func main() {
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
-	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+	// TODO controller-runtime wants a logr.Logger using zap, koko wants a zap.Logger. deja vu, 5000 logging libs
+	zlogger := zap.NewRaw(zap.UseFlagOptions(&opts))
+	logger := zap.New(zap.UseFlagOptions(&opts))
+	ctrl.SetLogger(logger)
 
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+	// TODO temp local config
+	//mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+	kcfg, err := getKubeconfig()
+	if err != nil {
+		setupLog.Error(err, "unable to start manager")
+		os.Exit(1)
+	}
+	mgr, err := ctrl.NewManager(kcfg, ctrl.Options{
 		Scheme:                 scheme,
 		Namespace:              corev1.NamespaceAll,
 		MetricsBindAddress:     metricsAddr,
@@ -96,20 +107,41 @@ func main() {
 		os.Exit(1)
 	}
 
+	var store datastore.StoreRunner
+	// TODO leftover garbage
+	//if err := store.Setup(zlogger); err != nil {
+	//	setupLog.Error(err, "could not set up data store")
+	//	os.Exit(1)
+	//}
+
+	if err = mgr.Add(&store); err != nil {
+		setupLog.Error(err, "could not add data store")
+		os.Exit(1)
+	}
+
+	services := datastore.BuildServices(datastore.HandlerOpts{
+		Logger:      zlogger,
+		StoreLoader: &store,
+		// TODO validator
+	})
+
 	if err = (&networkingk8siocontrollers.IngressReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
+		Store:  &services,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Ingress")
 		os.Exit(1)
 	}
-	if err = (&configurationkonghqcomcontrollers.KongPluginReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "KongPlugin")
-		os.Exit(1)
-	}
+	// TODO
+	//if err = (&configurationkonghqcomcontrollers.KongPluginReconciler{
+	//	Client: mgr.GetClient(),
+	//	Scheme: mgr.GetScheme(),
+	//	Store:  &services,
+	//}).SetupWithManager(mgr); err != nil {
+	//	setupLog.Error(err, "unable to create controller", "controller", "KongPlugin")
+	//	os.Exit(1)
+	//}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
@@ -121,14 +153,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = mgr.Add(&datastore.StoreRunner{}); err != nil {
-		setupLog.Error(err, "could not set up data store")
-		os.Exit(1)
-	}
-
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
+}
+
+// TODO testing only
+func getKubeconfig() (*rest.Config, error) {
+	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("KUBECONFIG"))
+	if err != nil {
+		return nil, err
+	}
+
+	return config, err
 }

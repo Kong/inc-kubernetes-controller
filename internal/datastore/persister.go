@@ -9,6 +9,8 @@ import (
 
 	"github.com/kong/inc-kubernetes-controller/internal/koko/db"
 	model "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/model/v1"
+	genJSONSchema "github.com/kong/inc-kubernetes-controller/internal/koko/gen/jsonschema"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/model/json/schema"
 	"github.com/kong/inc-kubernetes-controller/internal/koko/persistence"
 	"github.com/kong/inc-kubernetes-controller/internal/koko/persistence/sqlite"
 	"github.com/kong/inc-kubernetes-controller/internal/koko/store"
@@ -41,6 +43,7 @@ type StoreRunner struct {
 
 // Setup creates a datastore
 func (s *StoreRunner) Setup(logger *zap.Logger) error {
+	schema.RegisterSchemasFromFS(&genJSONSchema.KongSchemas)
 	config := dbConfig()
 	config.Logger = logger
 	m, err := db.NewMigrator(config)

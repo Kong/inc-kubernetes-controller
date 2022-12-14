@@ -46,7 +46,7 @@ type Services struct {
 	node   v1.NodeServiceServer
 }
 
-func buildServices(opts HandlerOpts) Services {
+func BuildServices(opts HandlerOpts) Services {
 	return Services{
 		Service: &svcs.ServiceService{
 			CommonOpts: svcs.CommonOpts{

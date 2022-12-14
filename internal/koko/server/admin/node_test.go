@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/google/uuid"
 	model "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/model/v1"
 	service "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/service/v1"

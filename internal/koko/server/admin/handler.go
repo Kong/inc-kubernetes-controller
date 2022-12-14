@@ -37,14 +37,14 @@ type HandlerOpts struct {
 }
 
 type CommonOpts struct {
-	storeLoader  util.StoreLoader
-	loggerFields []zapcore.Field
+	StoreLoader  util.StoreLoader
+	LoggerFields []zapcore.Field
 }
 
 func (c CommonOpts) getDB(ctx context.Context,
 	cluster *model.RequestCluster,
 ) (store.Store, error) {
-	store, err := c.storeLoader.Load(ctx, cluster)
+	store, err := c.StoreLoader.Load(ctx, cluster)
 	if err != nil {
 		if storeLoadErr, ok := err.(util.StoreLoadErr); ok {
 			return nil, status.Error(storeLoadErr.Code, storeLoadErr.Message)
@@ -76,24 +76,24 @@ func buildServices(opts HandlerOpts) services {
 	return services{
 		service: &ServiceService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "service"),
 				},
 			},
 		},
 		route: &RouteService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "route"),
 				},
 			},
 		},
 		plugin: &PluginService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "plugin"),
 				},
 			},
@@ -101,8 +101,8 @@ func buildServices(opts HandlerOpts) services {
 		},
 		pluginSchema: &PluginSchemaService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "plugin-schema"),
 				},
 			},
@@ -110,24 +110,24 @@ func buildServices(opts HandlerOpts) services {
 		},
 		upstream: &UpstreamService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "upstream"),
 				},
 			},
 		},
 		target: &TargetService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "target"),
 				},
 			},
 		},
 		schemas: &SchemasService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "schemas"),
 				},
 			},
@@ -135,56 +135,56 @@ func buildServices(opts HandlerOpts) services {
 		},
 		node: &NodeService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "node"),
 				},
 			},
 		},
 		status: &StatusService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "status"),
 				},
 			},
 		},
 		certificate: &CertificateService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "certificate"),
 				},
 			},
 		},
 		caCertificate: &CACertificateService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "ca-certificate"),
 				},
 			},
 		},
 		consumer: &ConsumerService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "consumer"),
 				},
 			},
 		},
 		sni: &SNIService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "sni"),
 				},
 			},
 		},
 		vault: &VaultService{
 			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "vault"),
 				},
 			},

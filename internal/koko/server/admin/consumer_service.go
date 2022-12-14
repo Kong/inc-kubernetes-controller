@@ -148,5 +148,5 @@ func (s *ConsumerService) err(ctx context.Context, err error) error {
 }
 
 func (s *ConsumerService) logger(ctx context.Context) *zap.Logger {
-	return util.LoggerFromContext(ctx).With(s.loggerFields...)
+	return util.LoggerFromContext(ctx).With(s.LoggerFields...)
 }

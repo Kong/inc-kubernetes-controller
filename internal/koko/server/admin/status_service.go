@@ -40,5 +40,5 @@ func (s *StatusService) err(ctx context.Context, err error) error {
 }
 
 func (s *StatusService) logger(ctx context.Context) *zap.Logger {
-	return util.LoggerFromContext(ctx).With(s.loggerFields...)
+	return util.LoggerFromContext(ctx).With(s.LoggerFields...)
 }

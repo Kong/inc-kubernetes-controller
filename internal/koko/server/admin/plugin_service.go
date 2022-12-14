@@ -228,7 +228,7 @@ func (s *PluginService) err(ctx context.Context, err error) error {
 }
 
 func (s *PluginService) logger(ctx context.Context) *zap.Logger {
-	return util.LoggerFromContext(ctx).With(s.loggerFields...)
+	return util.LoggerFromContext(ctx).With(s.LoggerFields...)
 }
 
 func (s *PluginService) getCustomPluginNames(ctx context.Context, db store.Store) ([]string, error) {

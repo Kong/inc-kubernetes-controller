@@ -121,7 +121,7 @@ func (s *UpstreamService) err(ctx context.Context, err error) error {
 }
 
 func (s *UpstreamService) logger(ctx context.Context) *zap.Logger {
-	return util.LoggerFromContext(ctx).With(s.loggerFields...)
+	return util.LoggerFromContext(ctx).With(s.LoggerFields...)
 }
 
 func upstreamsFromObjects(objects []model.Object) []*pbModel.Upstream {

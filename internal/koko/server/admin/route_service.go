@@ -137,7 +137,7 @@ func (s *RouteService) err(ctx context.Context, err error) error {
 }
 
 func (s *RouteService) logger(ctx context.Context) *zap.Logger {
-	return util.LoggerFromContext(ctx).With(s.loggerFields...)
+	return util.LoggerFromContext(ctx).With(s.LoggerFields...)
 }
 
 func routesFromObjects(objects []model.Object) []*pbModel.Route {

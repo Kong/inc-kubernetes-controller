@@ -123,7 +123,7 @@ func (s *VaultService) err(ctx context.Context, err error) error {
 }
 
 func (s *VaultService) logger(ctx context.Context) *zap.Logger {
-	return util.LoggerFromContext(ctx).With(s.loggerFields...)
+	return util.LoggerFromContext(ctx).With(s.LoggerFields...)
 }
 
 func vaultsFromObjects(objects []model.Object) []*pb.Vault {

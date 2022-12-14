@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gavv/httpexpect/v2"
 	"github.com/google/uuid"
 	model "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/model/v1"
 	service "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/service/v1"
@@ -48,8 +47,8 @@ func TestNodeCreateUpsert(t *testing.T) {
 	}
 	nodeService := &NodeService{
 		CommonOpts: CommonOpts{
-			loggerFields: []zapcore.Field{zap.String("admin-service", "node")},
-			storeLoader:  storeLoader,
+			LoggerFields: []zapcore.Field{zap.String("admin-service", "node")},
+			StoreLoader:  storeLoader,
 		},
 	}
 
@@ -609,8 +608,8 @@ func TestNodeService_listAllNodeStatus(t *testing.T) {
 	db := objectStore.ForCluster(store.DefaultCluster)
 	nodeService := &NodeService{
 		CommonOpts: CommonOpts{
-			loggerFields: []zapcore.Field{zap.String("admin-service", "node")},
-			storeLoader:  storeLoader,
+			LoggerFields: []zapcore.Field{zap.String("admin-service", "node")},
+			StoreLoader:  storeLoader,
 		},
 	}
 	ctx := context.Background()

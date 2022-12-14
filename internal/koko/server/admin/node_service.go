@@ -237,7 +237,7 @@ func (s *NodeService) err(ctx context.Context, err error) error {
 }
 
 func (s *NodeService) logger(ctx context.Context) *zap.Logger {
-	return util.LoggerFromContext(ctx).With(s.loggerFields...)
+	return util.LoggerFromContext(ctx).With(s.LoggerFields...)
 }
 
 func nodesFromObjects(objects []model.Object) []*pbModel.Node {

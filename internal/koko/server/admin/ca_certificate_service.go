@@ -123,7 +123,7 @@ func (s *CACertificateService) err(ctx context.Context, err error) error {
 }
 
 func (s *CACertificateService) logger(ctx context.Context) *zap.Logger {
-	return util.LoggerFromContext(ctx).With(s.loggerFields...)
+	return util.LoggerFromContext(ctx).With(s.LoggerFields...)
 }
 
 func caCertificatesFromObjects(objects []model.Object) []*pb.CACertificate {

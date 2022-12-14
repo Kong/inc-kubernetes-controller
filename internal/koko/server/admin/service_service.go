@@ -121,7 +121,7 @@ func (s *ServiceService) err(ctx context.Context, err error) error {
 }
 
 func (s *ServiceService) logger(ctx context.Context) *zap.Logger {
-	return util.LoggerFromContext(ctx).With(s.loggerFields...)
+	return util.LoggerFromContext(ctx).With(s.LoggerFields...)
 }
 
 func servicesFromObjects(objects []model.Object) []*pbModel.Service {

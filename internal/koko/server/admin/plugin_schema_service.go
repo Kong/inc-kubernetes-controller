@@ -169,7 +169,7 @@ func (s *PluginSchemaService) err(ctx context.Context, err error) error {
 }
 
 func (s *PluginSchemaService) logger(ctx context.Context) *zap.Logger {
-	return util.LoggerFromContext(ctx).With(s.loggerFields...)
+	return util.LoggerFromContext(ctx).With(s.LoggerFields...)
 }
 
 func pluginSchemasFromObjects(objects []model.Object) []*pb.PluginSchema {

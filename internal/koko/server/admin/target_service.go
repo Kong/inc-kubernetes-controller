@@ -142,7 +142,7 @@ func (s *TargetService) err(ctx context.Context, err error) error {
 }
 
 func (s *TargetService) logger(ctx context.Context) *zap.Logger {
-	return util.LoggerFromContext(ctx).With(s.loggerFields...)
+	return util.LoggerFromContext(ctx).With(s.LoggerFields...)
 }
 
 func targetsFromObjects(objects []model.Object) []*pbModel.Target {

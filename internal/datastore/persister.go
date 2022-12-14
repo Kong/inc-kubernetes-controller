@@ -64,8 +64,8 @@ func (s *StoreRunner) Setup(logger *zap.Logger) error {
 	return nil
 }
 
-func (s *StoreRunner) Load(_ context.Context, _ *model.RequestCluster) store.Store {
-	return s.Store
+func (s *StoreRunner) Load(_ context.Context, _ *model.RequestCluster) (store.Store, error) {
+	return s.Store, nil
 }
 
 // Start implements the Start function for controller-runtime Runnable interface

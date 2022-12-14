@@ -5,12 +5,16 @@ import (
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	v1 "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/service/v1"
 	"github.com/kong/inc-kubernetes-controller/internal/koko/json"
 	"github.com/kong/inc-kubernetes-controller/internal/koko/server/util"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	v1 "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/service/v1"
+	svcs "github.com/kong/inc-kubernetes-controller/internal/koko/server/admin"
 )
+
+// KOKO ripped from internal/server/admin/handler.go
 
 type services struct {
 	service       v1.ServiceServiceServer
@@ -30,119 +34,119 @@ type services struct {
 	node   v1.NodeServiceServer
 }
 
-func buildServices(opts HandlerOpts) services {
+func buildServices(store StoreRunner) services {
 	return services{
-		service: &ServiceService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		service: &svcs.ServiceService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "service"),
 				},
 			},
 		},
-		route: &RouteService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		route: &svcs.RouteService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "route"),
 				},
 			},
 		},
-		plugin: &PluginService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		plugin: &svcs.PluginService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "plugin"),
 				},
 			},
 			validator: opts.Validator,
 		},
-		pluginSchema: &PluginSchemaService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		pluginSchema: &svcs.PluginSchemaService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "plugin-schema"),
 				},
 			},
 			validator: opts.Validator,
 		},
-		upstream: &UpstreamService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		upstream: &svcs.UpstreamService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "upstream"),
 				},
 			},
 		},
-		target: &TargetService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		target: &svcs.TargetService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "target"),
 				},
 			},
 		},
-		schemas: &SchemasService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		schemas: &svcs.SchemasService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "schemas"),
 				},
 			},
 			validator: opts.Validator,
 		},
-		node: &NodeService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		node: &svcs.NodeService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "node"),
 				},
 			},
 		},
-		status: &StatusService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		status: &svcs.StatusService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "status"),
 				},
 			},
 		},
-		certificate: &CertificateService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		certificate: &svcs.CertificateService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "certificate"),
 				},
 			},
 		},
-		caCertificate: &CACertificateService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		caCertificate: &svcs.CACertificateService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "ca-certificate"),
 				},
 			},
 		},
-		consumer: &ConsumerService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		consumer: &svcs.ConsumerService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "consumer"),
 				},
 			},
 		},
-		sni: &SNIService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		sni: &svcs.SNIService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "sni"),
 				},
 			},
 		},
-		vault: &VaultService{
-			CommonOpts: CommonOpts{
-				storeLoader: opts.StoreLoader,
-				loggerFields: []zapcore.Field{
+		vault: &svcs.VaultService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: &store,
+				LoggerFields: []zapcore.Field{
 					zap.String("admin-service", "vault"),
 				},
 			},

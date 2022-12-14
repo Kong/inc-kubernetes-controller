@@ -19,7 +19,7 @@ import (
 type PluginSchemaService struct {
 	v1.UnimplementedPluginSchemaServiceServer
 	CommonOpts
-	validator plugin.Validator
+	Validator plugin.Validator
 }
 
 const nameFieldName = "name"

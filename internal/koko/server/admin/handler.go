@@ -97,7 +97,7 @@ func buildServices(opts HandlerOpts) services {
 					zap.String("admin-service", "plugin"),
 				},
 			},
-			validator: opts.Validator,
+			Validator: opts.Validator,
 		},
 		pluginSchema: &PluginSchemaService{
 			CommonOpts: CommonOpts{
@@ -106,7 +106,7 @@ func buildServices(opts HandlerOpts) services {
 					zap.String("admin-service", "plugin-schema"),
 				},
 			},
-			validator: opts.Validator,
+			Validator: opts.Validator,
 		},
 		upstream: &UpstreamService{
 			CommonOpts: CommonOpts{
@@ -131,7 +131,7 @@ func buildServices(opts HandlerOpts) services {
 					zap.String("admin-service", "schemas"),
 				},
 			},
-			validator: opts.Validator,
+			Validator: opts.Validator,
 		},
 		node: &NodeService{
 			CommonOpts: CommonOpts{

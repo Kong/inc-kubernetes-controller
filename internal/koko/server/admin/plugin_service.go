@@ -21,7 +21,7 @@ import (
 type PluginService struct {
 	v1.UnimplementedPluginServiceServer
 	CommonOpts
-	validator plugin.Validator
+	Validator plugin.Validator
 }
 
 func (s *PluginService) GetPlugin(ctx context.Context,
@@ -208,7 +208,7 @@ func (s *PluginService) GetAvailablePlugins(
 		return nil, err
 	}
 	pluginNames := []string{}
-	bundledPlugins := s.validator.GetAvailablePluginNames(ctx)
+	bundledPlugins := s.Validator.GetAvailablePluginNames(ctx)
 	pluginNames = append(pluginNames, bundledPlugins...)
 	customPluginNames, err := s.getCustomPluginNames(ctx, db)
 	if err != nil {

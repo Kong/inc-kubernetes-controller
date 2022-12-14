@@ -53,8 +53,8 @@ func setupWithDB(t *testing.T, store store.Store) (*httptest.Server, func()) {
 		t.Fatalf("creating httptest.Server: %v", err)
 	}
 
-	// Because the validator is created before the StoreLoader for most tests the following mechanism
-	// has been established to set the store loader and update the resource validator appropriately.
+	// Because the Validator is created before the StoreLoader for most tests the following mechanism
+	// has been established to set the store loader and update the resource Validator appropriately.
 	luaValidator, ok := validator.(*validators.LuaValidator)
 	if ok {
 		luaValidator.SetStoreLoader(storeLoader)

@@ -22,7 +22,7 @@ import (
 
 type SchemasService struct {
 	v1.UnimplementedSchemasServiceServer
-	validator plugin.Validator
+	Validator plugin.Validator
 
 	CommonOpts
 }
@@ -68,7 +68,7 @@ func (s *SchemasService) GetLuaSchemasPlugin(ctx context.Context,
 	ctx = context.WithValue(ctx, util.ContextKeyCluster, req.Cluster)
 
 	// Retrieve the raw JSON based on plugin name
-	rawLuaSchema, err := s.validator.GetRawLuaSchema(ctx, req.Name)
+	rawLuaSchema, err := s.Validator.GetRawLuaSchema(ctx, req.Name)
 	if err != nil {
 		// if it's not found, return custom error
 		if errors.Is(err, store.ErrNotFound) || errors.Is(err, plugin.ErrSchemaNotFound) {

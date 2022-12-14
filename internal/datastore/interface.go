@@ -1,262 +1,167 @@
 package datastore
 
 import (
-	"context"
-	"net/http"
-
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/kong/inc-kubernetes-controller/internal/koko/json"
-	"github.com/kong/inc-kubernetes-controller/internal/koko/server/util"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	v1 "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/service/v1"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/plugin"
 	svcs "github.com/kong/inc-kubernetes-controller/internal/koko/server/admin"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/server/util"
 )
 
 // KOKO ripped from internal/server/admin/handler.go
 
-type services struct {
-	service       v1.ServiceServiceServer
-	route         v1.RouteServiceServer
-	plugin        v1.PluginServiceServer
-	pluginSchema  v1.PluginSchemaServiceServer
-	upstream      v1.UpstreamServiceServer
-	target        v1.TargetServiceServer
-	schemas       v1.SchemasServiceServer
-	certificate   v1.CertificateServiceServer
-	consumer      v1.ConsumerServiceServer
-	caCertificate v1.CACertificateServiceServer
-	sni           v1.SNIServiceServer
-	vault         v1.VaultServiceServer
+// ContextKey type must be used to manipulate the context of a request.
+type ContextKey struct{}
+
+type HandlerOpts struct {
+	Logger *zap.Logger
+
+	StoreLoader util.StoreLoader
+
+	Validator plugin.Validator
+}
+
+type CommonOpts struct {
+	StoreLoader  util.StoreLoader
+	LoggerFields []zapcore.Field
+}
+
+type Services struct {
+	Service       v1.ServiceServiceServer
+	Route         v1.RouteServiceServer
+	Plugin        v1.PluginServiceServer
+	PluginSchema  v1.PluginSchemaServiceServer
+	Upstream      v1.UpstreamServiceServer
+	Target        v1.TargetServiceServer
+	Schemas       v1.SchemasServiceServer
+	Certificate   v1.CertificateServiceServer
+	Consumer      v1.ConsumerServiceServer
+	CACertificate v1.CACertificateServiceServer
+	SNI           v1.SNIServiceServer
+	Vault         v1.VaultServiceServer
 
 	status v1.StatusServiceServer
 	node   v1.NodeServiceServer
 }
 
-func buildServices(store StoreRunner) services {
-	return services{
-		service: &svcs.ServiceService{
+func buildServices(opts HandlerOpts) Services {
+	return Services{
+		Service: &svcs.ServiceService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "service"),
+					zap.String("admin-Service", "Service"),
 				},
 			},
 		},
-		route: &svcs.RouteService{
+		Route: &svcs.RouteService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "route"),
+					zap.String("admin-Service", "Route"),
 				},
 			},
 		},
-		plugin: &svcs.PluginService{
+		Plugin: &svcs.PluginService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "plugin"),
+					zap.String("admin-Service", "Plugin"),
 				},
 			},
-			validator: opts.Validator,
+			Validator: opts.Validator,
 		},
-		pluginSchema: &svcs.PluginSchemaService{
+		PluginSchema: &svcs.PluginSchemaService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "plugin-schema"),
+					zap.String("admin-Service", "Plugin-schema"),
 				},
 			},
-			validator: opts.Validator,
+			Validator: opts.Validator,
 		},
-		upstream: &svcs.UpstreamService{
+		Upstream: &svcs.UpstreamService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "upstream"),
-				},
-			},
-		},
-		target: &svcs.TargetService{
-			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
-				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "target"),
+					zap.String("admin-Service", "Upstream"),
 				},
 			},
 		},
-		schemas: &svcs.SchemasService{
+		Target: &svcs.TargetService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "schemas"),
+					zap.String("admin-Service", "Target"),
 				},
 			},
-			validator: opts.Validator,
+		},
+		Schemas: &svcs.SchemasService{
+			CommonOpts: svcs.CommonOpts{
+				StoreLoader: opts.StoreLoader,
+				LoggerFields: []zapcore.Field{
+					zap.String("admin-Service", "Schemas"),
+				},
+			},
+			Validator: opts.Validator,
 		},
 		node: &svcs.NodeService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "node"),
+					zap.String("admin-Service", "node"),
 				},
 			},
 		},
 		status: &svcs.StatusService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "status"),
+					zap.String("admin-Service", "status"),
 				},
 			},
 		},
-		certificate: &svcs.CertificateService{
+		Certificate: &svcs.CertificateService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "certificate"),
+					zap.String("admin-Service", "Certificate"),
 				},
 			},
 		},
-		caCertificate: &svcs.CACertificateService{
+		CACertificate: &svcs.CACertificateService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "ca-certificate"),
+					zap.String("admin-Service", "ca-Certificate"),
 				},
 			},
 		},
-		consumer: &svcs.ConsumerService{
+		Consumer: &svcs.ConsumerService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "consumer"),
+					zap.String("admin-Service", "Consumer"),
 				},
 			},
 		},
-		sni: &svcs.SNIService{
+		SNI: &svcs.SNIService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "sni"),
+					zap.String("admin-Service", "SNI"),
 				},
 			},
 		},
-		vault: &svcs.VaultService{
+		Vault: &svcs.VaultService{
 			CommonOpts: svcs.CommonOpts{
-				StoreLoader: &store,
+				StoreLoader: opts.StoreLoader,
 				LoggerFields: []zapcore.Field{
-					zap.String("admin-service", "vault"),
+					zap.String("admin-Service", "Vault"),
 				},
 			},
 		},
 	}
-}
-
-func NewHandler(opts HandlerOpts) (http.Handler, error) {
-	err := validateOpts(opts)
-	if err != nil {
-		return nil, err
-	}
-
-	mux := runtime.NewServeMux(
-		runtime.WithMarshalerOption(runtime.MIMEWildcard, json.Marshaller),
-		runtime.WithErrorHandler(util.ErrorHandler),
-		runtime.WithForwardResponseOption(util.SetHTTPStatus),
-		runtime.WithForwardResponseOption(util.FinishTrace),
-	)
-
-	err = v1.RegisterMetaServiceHandlerServer(context.Background(),
-		mux, &MetaService{})
-	if err != nil {
-		return nil, err
-	}
-
-	services := buildServices(opts)
-	err = v1.RegisterServiceServiceHandlerServer(context.Background(),
-		mux, services.service)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterRouteServiceHandlerServer(context.Background(),
-		mux, services.route)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterPluginServiceHandlerServer(context.Background(),
-		mux, services.plugin)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterPluginSchemaServiceHandlerServer(context.Background(),
-		mux, services.pluginSchema)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterUpstreamServiceHandlerServer(context.Background(),
-		mux, services.upstream)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterTargetServiceHandlerServer(context.Background(),
-		mux, services.target)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterSchemasServiceHandlerServer(context.Background(),
-		mux, services.schemas)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterNodeServiceHandlerServer(context.Background(),
-		mux, services.node)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterStatusServiceHandlerServer(context.Background(),
-		mux, services.status)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterConsumerServiceHandlerServer(context.Background(),
-		mux, services.consumer)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterCertificateServiceHandlerServer(context.Background(),
-		mux, services.certificate)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterCACertificateServiceHandlerServer(context.Background(),
-		mux, services.caCertificate)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterSNIServiceHandlerServer(context.Background(),
-		mux, services.sni)
-	if err != nil {
-		return nil, err
-	}
-
-	err = v1.RegisterVaultServiceHandlerServer(context.Background(),
-		mux, services.vault)
-	if err != nil {
-		return nil, err
-	}
-
-	return mux, nil
 }

@@ -64,6 +64,7 @@ func (s *StoreRunner) Setup(logger *zap.Logger) error {
 	return nil
 }
 
+// Load implements the Koko StoreLoader interface, used by store Services to access the DB
 func (s *StoreRunner) Load(_ context.Context, _ *model.RequestCluster) (store.Store, error) {
 	return s.Store, nil
 }

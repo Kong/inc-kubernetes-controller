@@ -36,6 +36,7 @@ import (
 	configurationkonghqcomv1 "github.com/kong/inc-kubernetes-controller/apis/configuration.konghq.com/v1"
 	configurationkonghqcomcontrollers "github.com/kong/inc-kubernetes-controller/controllers/configuration.konghq.com"
 	networkingk8siocontrollers "github.com/kong/inc-kubernetes-controller/controllers/networking.k8s.io"
+	"github.com/kong/inc-kubernetes-controller/internal/datastore"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -117,6 +118,11 @@ func main() {
 	}
 	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up ready check")
+		os.Exit(1)
+	}
+
+	if err = mgr.Add(&datastore.StoreRunner{}); err != nil {
+		setupLog.Error(err, "could not set up data store")
 		os.Exit(1)
 	}
 

@@ -24,12 +24,15 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+
+	"github.com/kong/inc-kubernetes-controller/internal/koko/store"
 )
 
 // IngressReconciler reconciles a Ingress object
 type IngressReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+	Store  *store.ObjectStore
 }
 
 //+kubebuilder:rbac:groups=networking.k8s.io.konghq.com,resources=ingresses,verbs=get;list;watch

@@ -25,12 +25,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	configurationkonghqcomv1 "github.com/kong/inc-kubernetes-controller/apis/configuration.konghq.com/v1"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/store"
 )
 
 // KongPluginReconciler reconciles a KongPlugin object
 type KongPluginReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+	Store  *store.ObjectStore
 }
 
 //+kubebuilder:rbac:groups=configuration.konghq.com.konghq.com,resources=kongplugins,verbs=get;list;watch

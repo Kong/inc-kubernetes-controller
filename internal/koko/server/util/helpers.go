@@ -91,7 +91,13 @@ func LoggerFromContext(ctx context.Context) *zap.Logger {
 	if logger, ok := ctx.Value(LoggerKey).(*zap.Logger); ok {
 		return logger
 	}
-	panic(errors.New("logger not set in context"))
+	// TODO figure out how koko wants log plumbing to work
+	//panic(errors.New("logger not set in context"))
+	whatever, err := zap.NewDevelopment()
+	if err != nil {
+		panic(err)
+	}
+	return whatever
 }
 
 func LoggerWithSpan(ctx context.Context, l *zap.Logger) *zap.Logger {

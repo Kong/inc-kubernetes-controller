@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/kong/inc-kubernetes-controller/internal/datastore"
-	pbmodel "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/model/v1"
-	kokov1 "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/service/v1"
+	modelv1 "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/model/v1"
+	servicev1 "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/service/v1"
 	"github.com/kong/inc-kubernetes-controller/internal/koko/server/util"
 )
 
@@ -44,7 +44,7 @@ type IngressReconciler struct {
 }
 
 var (
-	testRoute = pbmodel.Route{
+	testRoute = modelv1.Route{
 		Id:        "207b3449-f2d1-463b-9177-4cbe6dd9612d",
 		Name:      "default.nanana.httpbin.kong.example.80",
 		Hosts:     []string{"kong.example"},
@@ -52,12 +52,12 @@ var (
 		Protocols: []string{"http", "https"},
 		StripPath: &wrapperspb.BoolValue{Value: true},
 		Tags:      []string{"k8s-uid:3191a4ce-0102-4eef-b65c-567886d95971"},
-		Service: &pbmodel.Service{
+		Service: &modelv1.Service{
 			Id: "0e2dc99a-d395-4828-b3b3-31393b9f1583",
 		},
 	}
 
-	testService = pbmodel.Service{
+	testService = modelv1.Service{
 		Id:       "0e2dc99a-d395-4828-b3b3-31393b9f1583",
 		Name:     "default.nanana.httpbin.80",
 		Host:     "httpbin.org",
@@ -75,8 +75,10 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	// TODO confirm how this works, and that it just uses the zap log from the manager
 	// Existing KIC controllers have their logger defined as part of the Reconciler struct
 	logger := log.FromContext(ctx)
+	var err error
 
 	// TODO garbage to provide koko API with a logger
+	// TODO koko wants a logger via the context, somehow, and this _does not_ actually work to set it. it needs to
 	opts := zap.Options{
 		Development: true,
 	}
@@ -95,32 +97,69 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	if !ingress.DeletionTimestamp.IsZero() && time.Now().After(ingress.DeletionTimestamp.Time) {
 		// TODO delete from store
+		// Because we can no longer simply delete the exact object (the <Namespace>/<Name> Ingress) from the store,
+		// we need to generate route names or memoize. the former requires iterating through all the rules. the latter
+		// requires either annotations containing a CSV of IDs or maintaining in-memory state. in-memory state may
+		// be fine, since sqlite gets repopulated from scratch by the new leader, but not sure
 	}
 
 	// TODO class filtering goes either in here or in a filter in SetupWithManager. skipping it for now
 
 	// TODO load and update services in backends. these need to be created before the route
-	// TODO fake service for now. do we need anything other than the Item? who knows!
-	r.Store.Service.UpsertService(ktx, &kokov1.UpsertServiceRequest{Item: &testService})
-
-	// TODO create/update route properly
-	r.Store.Route.UpsertRoute(ktx, &kokov1.UpsertRouteRequest{Item: &testRoute})
-
-	gotService, err := r.Store.Service.GetService(ctx, &kokov1.GetServiceRequest{Id: "0e2dc99a-d395-4828-b3b3-31393b9f1583"})
+	translator := newIngressServiceTranslator()
+	translator.populateProtoRoutesFromIngress(&ingress)
+	translator.Services, err = r.getProtoRouteServices(ctx, translator.ProtoRoutes)
 	if err != nil {
-		logger.Error(err, "could not get service")
+		return ctrl.Result{}, err
 	}
-	gotRoute, err := r.Store.Route.GetRoute(ctx, &kokov1.GetRouteRequest{Id: "207b3449-f2d1-463b-9177-4cbe6dd9612d"})
+	for _, service := range translator.Services {
+		translator.PortNames[service.Name], translator.PortNumbers[service.Name] = servicePortIndices(service)
+	}
+	err = translator.fillKongServices()
 	if err != nil {
-		logger.Error(err, "could not get route")
+		return ctrl.Result{}, err
 	}
-	logger.Info(fmt.Sprintf("added service %s and route %s to the store", gotService.Item.Id, gotRoute.Item.Id))
+	err = translator.fillKongRoutes()
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	for _, i := range translator.KongServices {
+		// TODO do we have any use for the response this currently discards?
+		_, err = r.Store.Service.UpsertService(ktx, &servicev1.UpsertServiceRequest{Item: i})
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
+	for _, i := range translator.KongRoutes {
+		_, err = r.Store.Route.UpsertRoute(ktx, &servicev1.UpsertRouteRequest{Item: i})
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
+	for _, i := range translator.KongServices {
+		gotService, err := r.Store.Service.GetService(ctx, &servicev1.GetServiceRequest{Id: i.Id})
+		if err != nil {
+			logger.Error(err, "could not get service")
+		}
+		logger.Info(fmt.Sprintf("added service %s to the store", gotService.Item.Id))
+	}
+
+	for _, i := range translator.KongRoutes {
+		gotRoute, err := r.Store.Route.GetRoute(ctx, &servicev1.GetRouteRequest{Id: i.Id})
+		if err != nil {
+			logger.Error(err, "could not get route")
+		}
+		logger.Info(fmt.Sprintf("added route %s to the store", gotRoute.Item.Id))
+	}
 
 	// TODO load and update certificates/SNIs. these can be handled whenever
 	// TODO load and update plugins. these must be created after the route
 
 	// TODO reporting? probably not for POC
 
+	// TODO requeues currently on success, shouldn't. not sure why, we're not even updating status
 	return ctrl.Result{}, nil
 }
 

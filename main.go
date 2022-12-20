@@ -108,11 +108,6 @@ func main() {
 	}
 
 	var store datastore.StoreRunner
-	// TODO leftover garbage
-	//if err := store.Setup(zlogger); err != nil {
-	//	setupLog.Error(err, "could not set up data store")
-	//	os.Exit(1)
-	//}
 
 	if err = mgr.Add(&store); err != nil {
 		setupLog.Error(err, "could not add data store")
@@ -133,6 +128,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Ingress")
 		os.Exit(1)
 	}
+
 	// TODO
 	//if err = (&configurationkonghqcomcontrollers.KongPluginReconciler{
 	//	Client: mgr.GetClient(),

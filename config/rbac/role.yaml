@@ -6,28 +6,6 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - configuration.konghq.com.konghq.com
-  resources:
-  - kongplugins
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - configuration.konghq.com.konghq.com
-  resources:
-  - kongplugins/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - configuration.konghq.com.konghq.com
-  resources:
-  - kongplugins/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
   - networking.k8s.io.konghq.com
   resources:
   - ingresses

@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 
@@ -27,6 +28,12 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	// networkingv1 "k8s.io/api/networking/v1"
+	"github.com/kong/inc-kubernetes-controller/internal/control"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/server"
+	"github.com/kong/inc-kubernetes-controller/internal/koko/server/admin"
+	serverUtil "github.com/kong/inc-kubernetes-controller/internal/koko/server/util"
+	rzap "go.uber.org/zap"
+	"google.golang.org/grpc"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -38,6 +45,8 @@ import (
 	configurationkonghqcomv1 "github.com/kong/inc-kubernetes-controller/apis/configuration.konghq.com/v1"
 	networkingk8siocontrollers "github.com/kong/inc-kubernetes-controller/controllers/networking.k8s.io"
 	"github.com/kong/inc-kubernetes-controller/internal/datastore"
+	relay "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/relay/service/v1"
+	relayImpl "github.com/kong/inc-kubernetes-controller/internal/koko/server/relay"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -59,6 +68,8 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
+	// TODO get appropriate ctx for runnables
+	ctx := context.Background()
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -114,11 +125,55 @@ func main() {
 		os.Exit(1)
 	}
 
+	// relay
+	storeLoader := serverUtil.DefaultStoreLoader{Store: store.Store}
+	adminOpts := admin.HandlerOpts{
+		Logger:      zlogger.With(rzap.String("component", "admin-server")),
+		StoreLoader: storeLoader,
+	}
+	rawGRPCServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			serverUtil.LoggerInterceptor(zlogger),
+			serverUtil.PanicInterceptor(zlogger)),
+		grpc.ChainStreamInterceptor(serverUtil.PanicStreamInterceptor(adminOpts.Logger)))
+	admin.RegisterAdminService(rawGRPCServer, adminOpts)
+
+	grpcServer, err := server.NewGRPC(server.GRPCOpts{
+		Address:    ":3001",
+		GRPCServer: rawGRPCServer,
+		Logger:     zlogger.With(rzap.String("component", "relay-server")),
+	})
+	if err != nil {
+		setupLog.Error(err, "unable to create relay")
+		os.Exit(1)
+	}
+
+	eventService := relayImpl.NewEventService(ctx,
+		relayImpl.EventServiceOpts{
+			Store:  store.Store,
+			Logger: zlogger.With(rzap.String("component", "relay-server")),
+		})
+	relay.RegisterEventServiceServer(rawGRPCServer, eventService)
+	statusService := relayImpl.NewStatusService(relayImpl.StatusServiceOpts{
+		StoreLoader: storeLoader,
+		Logger:      zlogger.With(rzap.String("component", "relay-server")),
+	})
+	relay.RegisterStatusServiceServer(rawGRPCServer, statusService)
 	services := datastore.BuildServices(datastore.HandlerOpts{
 		Logger:      zlogger,
 		StoreLoader: &store,
 		// TODO validator
 	})
+	if err = mgr.Add(grpcServer); err != nil {
+		setupLog.Error(err, "unable to start relay")
+		os.Exit(1)
+	}
+
+	wrpcServer := &control.WRPCServer{}
+	if err = mgr.Add(wrpcServer); err != nil {
+		setupLog.Error(err, "unable to start control server")
+		os.Exit(1)
+	}
 
 	if err = (&networkingk8siocontrollers.IngressReconciler{
 		Client: mgr.GetClient(),

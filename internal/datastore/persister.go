@@ -91,3 +91,8 @@ func (s *StoreRunner) Start(ctx context.Context) error {
 func (s *StoreRunner) NeedLeaderElection() bool {
 	return true
 }
+
+// Cluster implements the Store interface.
+func (s *StoreRunner) Cluster() string {
+	return store.DefaultCluster
+}

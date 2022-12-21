@@ -87,3 +87,8 @@ func (g *GRPC) Run(ctx context.Context) error {
 	}
 	return nil
 }
+
+// TRR Runnable shim, runnable shim
+func (g *GRPC) Start(ctx context.Context) error {
+	return g.Run(ctx)
+}

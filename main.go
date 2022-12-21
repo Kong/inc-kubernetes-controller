@@ -82,8 +82,8 @@ func main() {
 	//mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 	kcfg, err := getKubeconfig()
 	if err != nil {
-		setupLog.Error(err, "unable to get kubeconfig")
-		os.Exit(1)
+		setupLog.Error(err, "unable to get kubeconfig from environment, trying in-cluster")
+		kcfg = ctrl.GetConfigOrDie()
 	}
 	mgr, err := ctrl.NewManager(kcfg, ctrl.Options{
 		Scheme:                 scheme,

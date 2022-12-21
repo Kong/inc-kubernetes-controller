@@ -1,4 +1,4 @@
-package datastore
+package kapi
 
 import (
 	"go.uber.org/zap"

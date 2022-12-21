@@ -30,7 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/kong/inc-kubernetes-controller/internal/datastore"
+	"github.com/kong/inc-kubernetes-controller/internal/kapi"
 	modelv1 "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/model/v1"
 	servicev1 "github.com/kong/inc-kubernetes-controller/internal/koko/gen/grpc/kong/admin/service/v1"
 	"github.com/kong/inc-kubernetes-controller/internal/koko/server/util"
@@ -40,7 +40,7 @@ import (
 type IngressReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
-	Store  *datastore.Services
+	Store  *kapi.Services
 }
 
 var (

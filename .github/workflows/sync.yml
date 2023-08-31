@@ -36,6 +36,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Sync
-      uses: ahmadnassri/action-template-repository-sync@v2.4.6
+      uses: ahmadnassri/action-template-repository-sync@v2.5.0
       with:
         github-token: ${{ secrets.GH_TOKEN }}
